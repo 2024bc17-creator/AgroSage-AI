@@ -1,0 +1,1677 @@
+import React, { useEffect, useState } from "react";
+
+export default function App() {
+  // LOGIN
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+
+  // APP
+  const [page, setPage] = useState("home");
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // LOGIN FORM
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // SLIDER IMAGES
+  const sliderImages = [
+    "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg",
+    "https://images.pexels.com/photos/2886937/pexels-photo-2886937.jpeg",
+    "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [sliderImages.length]);
+
+  // DISEASE DATA
+  const diseaseData = [
+    {
+      name: "Rice Blast",
+      image:
+        "https://images.pexels.com/photos/1268101/pexels-photo-1268101.jpeg",
+    },
+    {
+      name: "Leaf Spot",
+      image:
+        "https://images.pexels.com/photos/1459505/pexels-photo-1459505.jpeg",
+    },
+    {
+      name: "Tomato Wilt",
+      image:
+        "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg",
+    },
+    {
+      name: "Rust Disease",
+      image:
+        "https://images.pexels.com/photos/2131784/pexels-photo-2131784.jpeg",
+    },
+    {
+      name: "Powdery Mildew",
+      image:
+        "https://images.pexels.com/photos/4750270/pexels-photo-4750270.jpeg",
+    },
+    {
+      name: "Bacterial Blight",
+      image:
+        "https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg",
+    },
+  ];
+
+  // FERTILIZER DATA
+  const fertilizerData = [
+    {
+      name: "Organic Compost",
+      image:
+        "https://images.pexels.com/photos/5503257/pexels-photo-5503257.jpeg",
+    },
+    {
+      name: "Nitrogen Fertilizer",
+      image:
+        "https://images.pexels.com/photos/4207909/pexels-photo-4207909.jpeg",
+    },
+    {
+      name: "Potassium Mix",
+      image:
+        "https://images.pexels.com/photos/4505161/pexels-photo-4505161.jpeg",
+    },
+    {
+      name: "Bio Fertilizer",
+      image:
+        "https://images.pexels.com/photos/6231743/pexels-photo-6231743.jpeg",
+    },
+    {
+      name: "Seaweed Extract",
+      image:
+        "https://images.pexels.com/photos/6231738/pexels-photo-6231738.jpeg",
+    },
+    {
+      name: "Vermicompost",
+      image:
+        "https://images.pexels.com/photos/5503255/pexels-photo-5503255.jpeg",
+    },
+  ];
+
+  // MARKET PRICES
+  const marketPrices = [
+    {
+      crop: "Rice",
+      price: "₹2450 / Quintal",
+      image:
+        "https://images.pexels.com/photos/4110251/pexels-photo-4110251.jpeg",
+    },
+    {
+      crop: "Tomato",
+      price: "₹1800 / Quintal",
+      image:
+        "https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg",
+    },
+    {
+      crop: "Onion",
+      price: "₹2200 / Quintal",
+      image:
+        "https://images.pexels.com/photos/4197445/pexels-photo-4197445.jpeg",
+    },
+    {
+      crop: "Wheat",
+      price: "₹2600 / Quintal",
+      image:
+        "https://images.pexels.com/photos/326082/pexels-photo-326082.jpeg",
+    },
+    {
+      crop: "Cotton",
+      price: "₹7200 / Quintal",
+      image:
+        "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg",
+    },
+    {
+      crop: "Sugarcane",
+      price: "₹340 / Ton",
+      image:
+        "https://images.pexels.com/photos/2255935/pexels-photo-2255935.jpeg",
+    },
+  ];
+
+  // IMAGE UPLOAD
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setUploadedImage(URL.createObjectURL(file));
+    }
+  };
+
+  // LOGIN
+  const handleLogin = () => {
+    if (email && password) {
+      setIsLoggedIn(true);
+    } else {
+      alert("Please fill all fields");
+    }
+  };
+
+  // LOGIN PAGE
+  if (!isLoggedIn) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background:
+            "linear-gradient(135deg,#11998e,#38ef7d)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontFamily: "Arial",
+        }}
+      >
+        <div
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            backdropFilter: "blur(10px)",
+            padding: "40px",
+            borderRadius: "30px",
+            width: "400px",
+            color: "white",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <h1 style={{ fontSize: "45px" }}>
+              🌿 AgroSage AI
+            </h1>
+
+            <p style={{ marginBottom: "30px" }}>
+              Smart Agriculture Platform
+            </p>
+          </div>
+
+          {!isLogin && (
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={inputStyle}
+            />
+          )}
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={inputStyle}
+          />
+
+          <button
+            onClick={handleLogin}
+            style={loginBtn}
+          >
+            {isLogin ? "Login" : "Create Account"}
+          </button>
+
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "20px",
+            }}
+          >
+            {isLogin
+              ? "Don't have an account?"
+              : "Already have an account?"}
+          </p>
+
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "white",
+              width: "100%",
+              marginTop: "10px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            {isLogin ? "Sign Up" : "Login"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // MAIN WEBSITE
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f4fff4",
+        fontFamily: "Arial",
+      }}
+    >
+      {/* NAVBAR */}
+      <div
+        style={{
+          background:
+            "linear-gradient(90deg,#0f9b0f,#38ef7d)",
+          padding: "18px 40px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          color: "white",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+        }}
+      >
+        <h1 style={{ fontSize: "32px" }}>
+          🌿 AgroSage AI
+        </h1>
+
+        <div style={{ display: "flex", gap: "20px" }}>
+          <button
+            style={navBtn}
+            onClick={() => setPage("home")}
+          >
+            Home
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("diseases")}
+          >
+            Diseases
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("fertilizers")}
+          >
+            Fertilizers
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("market")}
+          >
+            Market Prices
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("contact")}
+          >
+            Contact
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setIsLoggedIn(false)}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      {/* HOME */}
+      {page === "home" && (
+        <div>
+          {/* HERO */}
+          <div
+            style={{
+              position: "relative",
+              height: "600px",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={sliderImages[currentSlide]}
+              alt="slider"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,0,0,0.45)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "white",
+                textAlign: "center",
+              }}
+            >
+              <h1
+                style={{
+                  fontSize: "70px",
+                  fontWeight: "bold",
+                }}
+              >
+                Smart Farming Future
+              </h1>
+
+              <p
+                style={{
+                  fontSize: "24px",
+                  marginTop: "15px",
+                }}
+              >
+                AI Crop Disease Detection &
+                Fertilizer Guidance
+              </p>
+
+              <button style={heroBtn}>
+                Explore Now
+              </button>
+            </div>
+          </div>
+
+          {/* WEATHER */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit,minmax(250px,1fr))",
+              gap: "25px",
+              padding: "40px",
+            }}
+          >
+            <div style={weatherCard}>
+              <h2>☀️ Madurai</h2>
+              <p>34°C Sunny</p>
+            </div>
+
+            <div style={weatherCard}>
+              <h2>🌧 Chennai</h2>
+              <p>29°C Rainy</p>
+            </div>
+
+            <div style={weatherCard}>
+              <h2>☁️ Coimbatore</h2>
+              <p>26°C Cloudy</p>
+            </div>
+          </div>
+
+          {/* IMAGE UPLOAD */}
+          <div style={sectionCard}>
+            <h1 style={sectionTitle}>
+              Upload Crop Image
+            </h1>
+
+            <input
+              type="file"
+              onChange={handleImageUpload}
+            />
+
+            {uploadedImage && (
+              <img
+                src={uploadedImage}
+                alt="upload"
+                style={{
+                  width: "350px",
+                  marginTop: "20px",
+                  borderRadius: "20px",
+                  boxShadow:
+                    "0 5px 20px rgba(0,0,0,0.2)",
+                }}
+              />
+            )}
+          </div>
+
+          {/* AI */}
+          <div style={aiSection}>
+            <h1 style={{ fontSize: "40px" }}>
+              🤖 AI Crop Assistant
+            </h1>
+
+            <input
+              placeholder="Ask about crops..."
+              style={aiInput}
+            />
+
+            <button style={heroBtn}>
+              Ask AI
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* DISEASES */}
+      {page === "diseases" && (
+        <div style={{ padding: "40px" }}>
+          <h1 style={pageTitle}>
+            🦠 Crop Diseases
+          </h1>
+
+          <div style={gridStyle}>
+            {diseaseData.map((item, index) => (
+              <div key={index} style={card}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={cardImage}
+                />
+
+                <h2 style={cardTitle}>
+                  {item.name}
+                </h2>
+
+                <p style={{ padding: "0 20px 20px" }}>
+                  Disease detection and crop protection
+                  guidance.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* FERTILIZERS */}
+      {page === "fertilizers" && (
+        <div style={{ padding: "40px" }}>
+          <h1 style={pageTitle}>
+            🌾 Fertilizers
+          </h1>
+
+          <div style={gridStyle}>
+            {fertilizerData.map((item, index) => (
+              <div key={index} style={card}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={cardImage}
+                />
+
+                <h2 style={cardTitle}>
+                  {item.name}
+                </h2>
+
+                <p style={{ padding: "0 20px 20px" }}>
+                  Helps improve healthy crop growth.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* MARKET */}
+      {page === "market" && (
+        <div style={{ padding: "40px" }}>
+          <h1 style={pageTitle}>
+            📈 Live Crop Market Prices
+          </h1>
+
+          <div style={gridStyle}>
+            {marketPrices.map((item, index) => (
+              <div key={index} style={card}>
+                <img
+                  src={item.image}
+                  alt={item.crop}
+                  style={cardImage}
+                />
+
+                <h2 style={cardTitle}>
+                  {item.crop}
+                </h2>
+
+                <h3
+                  style={{
+                    color: "green",
+                    padding: "0 20px 20px",
+                  }}
+                >
+                  {item.price}
+                </h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CONTACT */}
+      {page === "contact" && (
+        <div style={{ padding: "50px" }}>
+          <div style={contactBox}>
+            <h1 style={pageTitle}>
+              📞 Contact Us
+            </h1>
+
+            <input
+              placeholder="Name"
+              style={contactInput}
+            />
+
+            <input
+              placeholder="Email"
+              style={contactInput}
+            />
+
+            <textarea
+              placeholder="Message"
+              rows="5"
+              style={contactInput}
+            />
+
+            <button style={heroBtn}>
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// STYLES
+
+const inputStyle = {
+  width: "100%",
+  padding: "15px",
+  marginTop: "15px",
+  borderRadius: "15px",
+  border: "none",
+  fontSize: "16px",
+};
+
+const loginBtn = {
+  width: "100%",
+  marginTop: "25px",
+  padding: "15px",
+  borderRadius: "15px",
+  border: "none",
+  background: "white",
+  color: "green",
+  fontSize: "18px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const navBtn = {
+  background: "white",
+  color: "green",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const heroBtn = {
+  marginTop: "25px",
+  background: "#38ef7d",
+  color: "white",
+  border: "none",
+  padding: "15px 35px",
+  borderRadius: "30px",
+  fontSize: "18px",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const weatherCard = {
+  background:
+    "linear-gradient(135deg,#11998e,#38ef7d)",
+  color: "white",
+  padding: "30px",
+  borderRadius: "25px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+  textAlign: "center",
+  fontSize: "22px",
+};
+
+const sectionCard = {
+  background: "white",
+  margin: "40px",
+  padding: "40px",
+  borderRadius: "30px",
+  boxShadow: "0 5px 25px rgba(0,0,0,0.1)",
+};
+
+const sectionTitle = {
+  color: "green",
+  fontSize: "40px",
+  marginBottom: "20px",
+};
+
+const aiSection = {
+  margin: "40px",
+  padding: "50px",
+  borderRadius: "30px",
+  background:
+    "linear-gradient(135deg,#11998e,#38ef7d)",
+  color: "white",
+  textAlign: "center",
+};
+
+const aiInput = {
+  width: "80%",
+  padding: "18px",
+  borderRadius: "20px",
+  border: "none",
+  marginTop: "25px",
+  fontSize: "18px",
+};
+
+const pageTitle = {
+  textAlign: "center",
+  fontSize: "50px",
+  color: "green",
+  marginBottom: "40px",
+};
+
+const gridStyle = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(300px,1fr))",
+  gap: "30px",
+};
+
+const card = {
+  background: "white",
+  borderRadius: "25px",
+  overflow: "hidden",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+};
+
+const cardImage = {
+  width: "100%",
+  height: "250px",
+  objectFit: "cover",
+};
+
+const cardTitle = {
+  padding: "20px 20px 10px",
+  color: "green",
+};
+
+const contactBox = {
+  maxWidth: "700px",
+  margin: "auto",
+  background: "white",
+  padding: "40px",
+  borderRadius: "30px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+};
+
+const contactInput = {
+  width: "100%",
+  padding: "15px",
+  marginTop: "20px",
+  borderRadius: "15px",
+  border: "1px solid #ccc",
+  fontSize: "16px",
+};import React, { useEffect, useState } from "react";
+
+export default function App() {
+  // LOGIN
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+
+  // APP
+  const [page, setPage] = useState("home");
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // LOGIN FORM
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // SLIDER IMAGES
+  const sliderImages = [
+    "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg",
+    "https://images.pexels.com/photos/2886937/pexels-photo-2886937.jpeg",
+    "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [sliderImages.length]);
+// ============================
+const diseaseData = [
+  {
+    name: "Rice Blast",
+    image:
+      "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+  },
+  {
+    name: "Leaf Spot",
+    image:
+      "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735",
+  },
+  {
+    name: "Tomato Wilt",
+    image:
+      "https://images.unsplash.com/photo-1592841200221-a6898f307baa",
+  },
+  {
+    name: "Rust Disease",
+    image:
+      "https://images.unsplash.com/photo-1471193945509-9ad0617afabf",
+  },
+  {
+    name: "Powdery Mildew",
+    image:
+      "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2",
+  },
+  {
+    name: "Bacterial Blight",
+    image:
+      "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+  },
+  {
+    name: "Downy Mildew",
+    image:
+      "https://images.unsplash.com/photo-1473448912268-2022ce9509d8",
+  },
+  {
+    name: "Anthracnose",
+    image:
+      "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+  },
+  {
+    name: "Early Blight",
+    image:
+      "https://images.unsplash.com/photo-1492496913980-501348b61469",
+  },
+  {
+    name: "Late Blight",
+    image:
+      "https://images.unsplash.com/photo-1502741338009-cac2772e18bc",
+  },
+  {
+    name: "Root Rot",
+    image:
+      "https://images.unsplash.com/photo-1471194402529-8e0f5a675de6",
+  },
+  {
+    name: "Stem Rot",
+    image:
+      "https://images.unsplash.com/photo-1499529112087-3cb3b73cec95",
+  },
+  {
+    name: "Citrus Canker",
+    image:
+      "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+  },
+  {
+    name: "Black Mold",
+    image:
+      "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5",
+  },
+  {
+    name: "Fusarium Wilt",
+    image:
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655",
+  },
+  {
+    name: "Mosaic Virus",
+    image:
+      "https://images.unsplash.com/photo-1461354464878-ad92f492a5a0",
+  },
+  {
+    name: "Crown Gall",
+    image:
+      "https://images.unsplash.com/photo-1473773508845-188df298d2d1",
+  },
+  {
+    name: "Scab Disease",
+    image:
+      "https://images.unsplash.com/photo-1506806732259-39c2d0268443",
+  },
+  {
+    name: "Yellow Leaf Curl",
+    image:
+      "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+  },
+  {
+    name: "Smut Disease",
+    image:
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
+  },
+];
+
+// ============================
+// 🌾 REPLACE FERTILIZER DATA
+// ============================
+
+const fertilizerData = [
+  {
+    name: "Organic Compost",
+    image:
+      "https://images.unsplash.com/photo-1589923188900-85dae523342b",
+  },
+  {
+    name: "Nitrogen Fertilizer",
+    image:
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449",
+  },
+  {
+    name: "Potassium Mix",
+    image:
+      "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+  },
+  {
+    name: "Bio Fertilizer",
+    image:
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
+  },
+  {
+    name: "Seaweed Extract",
+    image:
+      "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+  },
+  {
+    name: "Vermicompost",
+    image:
+      "https://images.unsplash.com/photo-1523741543316-beb7fc7023d8",
+  },
+  {
+    name: "Urea",
+    image:
+      "https://images.unsplash.com/photo-1502741338009-cac2772e18bc",
+  },
+  {
+    name: "DAP Fertilizer",
+    image:
+      "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735",
+  },
+  {
+    name: "Super Phosphate",
+    image:
+      "https://images.unsplash.com/photo-1492496913980-501348b61469",
+  },
+  {
+    name: "Calcium Nitrate",
+    image:
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
+  },
+  {
+    name: "Potash",
+    image:
+      "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2",
+  },
+  {
+    name: "Bone Meal",
+    image:
+      "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5",
+  },
+  {
+    name: "Fish Emulsion",
+    image:
+      "https://images.unsplash.com/photo-1473448912268-2022ce9509d8",
+  },
+  {
+    name: "Cow Manure",
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+  },
+  {
+    name: "Poultry Manure",
+    image:
+      "https://images.unsplash.com/photo-1473773508845-188df298d2d1",
+  },
+  {
+    name: "Neem Cake",
+    image:
+      "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+  },
+  {
+    name: "Liquid Fertilizer",
+    image:
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655",
+  },
+  {
+    name: "Micronutrient Mix",
+    image:
+      "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+  },
+  {
+    name: "Humic Acid",
+    image:
+      "https://images.unsplash.com/photo-1506806732259-39c2d0268443",
+  },
+  {
+    name: "Plant Growth Booster",
+    image:
+      "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+  },
+];
+
+// ============================
+// 📈 REPLACE MARKET DATA
+// ============================
+
+const marketPrices = [
+  {
+    crop: "Rice",
+    price: "₹2450 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c",
+  },
+  {
+    crop: "Tomato",
+    price: "₹1800 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1546094096-0df4bcaaa337",
+  },
+  {
+    crop: "Onion",
+    price: "₹2200 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655",
+  },
+  {
+    crop: "Wheat",
+    price: "₹2600 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
+  },
+  {
+    crop: "Cotton",
+    price: "₹7200 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1473773508845-188df298d2d1",
+  },
+  {
+    crop: "Sugarcane",
+    price: "₹340 / Ton",
+    image:
+      "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+  },
+  {
+    crop: "Maize",
+    price: "₹2100 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1603048719539-9ecb4b5d5e7d",
+  },
+  {
+    crop: "Banana",
+    price: "₹1200 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1574226516831-e1dff420e37f",
+  },
+  {
+    crop: "Potato",
+    price: "₹1700 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655",
+  },
+  {
+    crop: "Chilli",
+    price: "₹5400 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd",
+  },
+  {
+    crop: "Groundnut",
+    price: "₹6100 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1506806732259-39c2d0268443",
+  },
+  {
+    crop: "Turmeric",
+    price: "₹8900 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5",
+  },
+  {
+    crop: "Ginger",
+    price: "₹4600 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5",
+  },
+  {
+    crop: "Coconut",
+    price: "₹38 / Piece",
+    image:
+      "https://images.unsplash.com/photo-1502741338009-cac2772e18bc",
+  },
+  {
+    crop: "Mango",
+    price: "₹5200 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1553279768-865429fa0078",
+  },
+  {
+    crop: "Apple",
+    price: "₹7800 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce",
+  },
+  {
+    crop: "Papaya",
+    price: "₹2400 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1517282009859-f000ec3b26fe",
+  },
+  {
+    crop: "Brinjal",
+    price: "₹1900 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2",
+  },
+  {
+    crop: "Cabbage",
+    price: "₹1400 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1518843875459-f738682238a6",
+  },
+  {
+    crop: "Carrot",
+    price: "₹2500 / Quintal",
+    image:
+      "https://images.unsplash.com/photo-1447175008436-054170c2e979",
+  },
+];
+  // IMAGE UPLOAD
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setUploadedImage(URL.createObjectURL(file));
+    }
+  };
+
+  // LOGIN
+  const handleLogin = () => {
+    if (email && password) {
+      setIsLoggedIn(true);
+    } else {
+      alert("Please fill all fields");
+    }
+  };
+
+  // LOGIN PAGE
+  if (!isLoggedIn) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background:
+            "linear-gradient(135deg,#11998e,#38ef7d)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontFamily: "Arial",
+        }}
+      >
+        <div
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            backdropFilter: "blur(10px)",
+            padding: "40px",
+            borderRadius: "30px",
+            width: "400px",
+            color: "white",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <h1 style={{ fontSize: "45px" }}>
+              🌿 AgroSage AI
+            </h1>
+
+            <p style={{ marginBottom: "30px" }}>
+              Smart Agriculture Platform
+            </p>
+          </div>
+
+          {!isLogin && (
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={inputStyle}
+            />
+          )}
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={inputStyle}
+          />
+
+          <button
+            onClick={handleLogin}
+            style={loginBtn}
+          >
+            {isLogin ? "Login" : "Create Account"}
+          </button>
+
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "20px",
+            }}
+          >
+            {isLogin
+              ? "Don't have an account?"
+              : "Already have an account?"}
+          </p>
+
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "white",
+              width: "100%",
+              marginTop: "10px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            {isLogin ? "Sign Up" : "Login"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // MAIN WEBSITE
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f4fff4",
+        fontFamily: "Arial",
+      }}
+    >
+      {/* NAVBAR */}
+      <div
+        style={{
+          background:
+            "linear-gradient(90deg,#0f9b0f,#38ef7d)",
+          padding: "18px 40px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          color: "white",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+        }}
+      >
+        <h1 style={{ fontSize: "32px" }}>
+          🌿 AgroSage AI
+        </h1>
+
+        <div style={{ display: "flex", gap: "20px" }}>
+          <button
+            style={navBtn}
+            onClick={() => setPage("home")}
+          >
+            Home
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("diseases")}
+          >
+            Diseases
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("fertilizers")}
+          >
+            Fertilizers
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("market")}
+          >
+            Market Prices
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setPage("contact")}
+          >
+            Contact
+          </button>
+
+          <button
+            style={navBtn}
+            onClick={() => setIsLoggedIn(false)}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      {/* HOME */}
+      {page === "home" && (
+        <div>
+          {/* HERO */}
+          <div
+            style={{
+              position: "relative",
+              height: "600px",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={sliderImages[currentSlide]}
+              alt="slider"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,0,0,0.45)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "white",
+                textAlign: "center",
+              }}
+            >
+              <h1
+                style={{
+                  fontSize: "70px",
+                  fontWeight: "bold",
+                }}
+              >
+                Smart Farming Future
+              </h1>
+
+              <p
+                style={{
+                  fontSize: "24px",
+                  marginTop: "15px",
+                }}
+              >
+                AI Crop Disease Detection &
+                Fertilizer Guidance
+              </p>
+
+              <button style={heroBtn}>
+                Explore Now
+              </button>
+            </div>
+          </div>
+
+          {/* WEATHER */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit,minmax(250px,1fr))",
+              gap: "25px",
+              padding: "40px",
+            }}
+          >
+            <div style={weatherCard}>
+              <h2>☀️ Madurai</h2>
+              <p>34°C Sunny</p>
+            </div>
+
+            <div style={weatherCard}>
+              <h2>🌧 Chennai</h2>
+              <p>29°C Rainy</p>
+            </div>
+
+            <div style={weatherCard}>
+              <h2>☁️ Coimbatore</h2>
+              <p>26°C Cloudy</p>
+            </div>
+          </div>
+
+          {/* IMAGE UPLOAD */}
+          <div style={sectionCard}>
+            <h1 style={sectionTitle}>
+              Upload Crop Image
+            </h1>
+
+            <input
+              type="file"
+              onChange={handleImageUpload}
+            />
+
+            {uploadedImage && (
+              <img
+                src={uploadedImage}
+                alt="upload"
+                style={{
+                  width: "350px",
+                  marginTop: "20px",
+                  borderRadius: "20px",
+                  boxShadow:
+                    "0 5px 20px rgba(0,0,0,0.2)",
+                }}
+              />
+            )}
+          </div>
+
+          {/* AI */}
+          <div style={aiSection}>
+            <h1 style={{ fontSize: "40px" }}>
+              🤖 AI Crop Assistant
+            </h1>
+
+            <input
+              placeholder="Ask about crops..."
+              style={aiInput}
+            />
+
+            <button style={heroBtn}>
+              Ask AI
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* DISEASES */}
+      {page === "diseases" && (
+        <div style={{ padding: "40px" }}>
+          <h1 style={pageTitle}>
+            🦠 Crop Diseases
+          </h1>
+
+          <div style={gridStyle}>
+            {diseaseData.map((item, index) => (
+              <div key={index} style={card}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={cardImage}
+                />
+
+                <h2 style={cardTitle}>
+                  {item.name}
+                </h2>
+
+                <p style={{ padding: "0 20px 20px" }}>
+                  Disease detection and crop protection
+                  guidance.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* FERTILIZERS */}
+      {page === "fertilizers" && (
+        <div style={{ padding: "40px" }}>
+          <h1 style={pageTitle}>
+            🌾 Fertilizers
+          </h1>
+
+          <div style={gridStyle}>
+            {fertilizerData.map((item, index) => (
+              <div key={index} style={card}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={cardImage}
+                />
+
+                <h2 style={cardTitle}>
+                  {item.name}
+                </h2>
+
+                <p style={{ padding: "0 20px 20px" }}>
+                  Helps improve healthy crop growth.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* MARKET */}
+      {page === "market" && (
+        <div style={{ padding: "40px" }}>
+          <h1 style={pageTitle}>
+            📈 Live Crop Market Prices
+          </h1>
+
+          <div style={gridStyle}>
+            {marketPrices.map((item, index) => (
+              <div key={index} style={card}>
+                <img
+                  src={item.image}
+                  alt={item.crop}
+                  style={cardImage}
+                />
+
+                <h2 style={cardTitle}>
+                  {item.crop}
+                </h2>
+
+                <h3
+                  style={{
+                    color: "green",
+                    padding: "0 20px 20px",
+                  }}
+                >
+                  {item.price}
+                </h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CONTACT */}
+      {page === "contact" && (
+        <div style={{ padding: "50px" }}>
+          <div style={contactBox}>
+            <h1 style={pageTitle}>
+              📞 Contact Us
+            </h1>
+
+            <input
+              placeholder="Name"
+              style={contactInput}
+            />
+
+            <input
+              placeholder="Email"
+              style={contactInput}
+            />
+
+            <textarea
+              placeholder="Message"
+              rows="5"
+              style={contactInput}
+            />
+
+            <button style={heroBtn}>
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// STYLES
+
+const inputStyle = {
+  width: "100%",
+  padding: "15px",
+  marginTop: "15px",
+  borderRadius: "15px",
+  border: "none",
+  fontSize: "16px",
+};
+
+const loginBtn = {
+  width: "100%",
+  marginTop: "25px",
+  padding: "15px",
+  borderRadius: "15px",
+  border: "none",
+  background: "white",
+  color: "green",
+  fontSize: "18px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const navBtn = {
+  background: "white",
+  color: "green",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const heroBtn = {
+  marginTop: "25px",
+  background: "#38ef7d",
+  color: "white",
+  border: "none",
+  padding: "15px 35px",
+  borderRadius: "30px",
+  fontSize: "18px",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const weatherCard = {
+  background:
+    "linear-gradient(135deg,#11998e,#38ef7d)",
+  color: "white",
+  padding: "30px",
+  borderRadius: "25px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+  textAlign: "center",
+  fontSize: "22px",
+};
+
+const sectionCard = {
+  background: "white",
+  margin: "40px",
+  padding: "40px",
+  borderRadius: "30px",
+  boxShadow: "0 5px 25px rgba(0,0,0,0.1)",
+};
+
+const sectionTitle = {
+  color: "green",
+  fontSize: "40px",
+  marginBottom: "20px",
+};
+
+const aiSection = {
+  margin: "40px",
+  padding: "50px",
+  borderRadius: "30px",
+  background:
+    "linear-gradient(135deg,#11998e,#38ef7d)",
+  color: "white",
+  textAlign: "center",
+};
+
+const aiInput = {
+  width: "80%",
+  padding: "18px",
+  borderRadius: "20px",
+  border: "none",
+  marginTop: "25px",
+  fontSize: "18px",
+};
+
+const pageTitle = {
+  textAlign: "center",
+  fontSize: "50px",
+  color: "green",
+  marginBottom: "40px",
+};
+
+const gridStyle = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(300px,1fr))",
+  gap: "30px",
+};
+
+const card = {
+  background: "white",
+  borderRadius: "25px",
+  overflow: "hidden",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+};
+
+const cardImage = {
+  width: "100%",
+  height: "250px",
+  objectFit: "cover",
+};
+
+const cardTitle = {
+  padding: "20px 20px 10px",
+  color: "green",
+};
+
+const contactBox = {
+  maxWidth: "700px",
+  margin: "auto",
+  background: "white",
+  padding: "40px",
+  borderRadius: "30px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+};
+
+const contactInput = {
+  width: "100%",
+  padding: "15px",
+  marginTop: "20px",
+  borderRadius: "15px",
+  border: "1px solid #ccc",
+  fontSize: "16px",
+};

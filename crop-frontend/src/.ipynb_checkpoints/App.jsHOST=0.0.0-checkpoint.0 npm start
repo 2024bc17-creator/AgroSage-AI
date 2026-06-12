@@ -1,0 +1,35 @@
+import { useState }x from "react";
+
+function App() {
+
+  const [result, setResult] = useState("");
+
+  const uploadImage = (e) => {
+
+    const file = e.target.files[0];
+
+    if(file){
+      setResult("Selected File: " + file.name);
+    }
+  };
+
+  return (
+
+    <div style={{
+      textAlign:"center",
+      marginTop:"100px",
+      fontFamily:"Arial"
+    }}>
+
+      <h1>Crop Disease Identifier</h1>
+
+      <input type="file" onChange={uploadImage} />
+
+      <h2>{result}</h2>
+
+    </div>
+
+  );
+}
+
+export default App;

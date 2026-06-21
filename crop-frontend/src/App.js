@@ -6,6 +6,8 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [isAccountCreated, setIsAccountCreated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState([]);
 
   // APP
   const [page, setPage] = useState("home");
@@ -31,7 +33,18 @@ const [selectedFile, setSelectedFile] = useState(null);
   // MARKET API STATE
   const [marketPrices, setMarketPrices] = useState([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
-
+  // WEATHER STATE  
+  const [city, setCity] = useState("");
+  const [weatherData, setWeatherData] = useState(null);
+  const [location, setLocation] = useState("");
+  const [recommendedCrops, setRecommendedCrops] = useState([]);
+  const [soilType, setSoilType] = useState("");
+  const [N, setN] = useState("");
+  const [P, setP] = useState("");
+  const [K, setK] = useState("");
+  const [ph, setPh] = useState("");
+  const [rainfall, setRainfall] = useState("");
+  const [recommendedCrop, setRecommendedCrop] = useState("");
   // SLIDER IMAGES
   const sliderImages = [
     "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg",
@@ -64,7 +77,20 @@ const [selectedFile, setSelectedFile] = useState(null);
       }, 1500);
     }
   }, [page]);
-
+    
+    useEffect(() => {
+  if (isAdmin) {
+    axios
+      .get("http://16.16.75.114:5000/admin/users")
+      .then((response) => {
+        setUsers(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+}, [isAdmin]);
+         
   // AI ANSWER
   const handleAskAI = () => {
     if (question.toLowerCase().includes("rice")) {
@@ -135,18 +161,17 @@ const [selectedFile, setSelectedFile] = useState(null);
   }
 };
 
-const handlePredict = async () => {
+  const handlePredict = async () => {
   if (!selectedFile) {
     alert("Please select an image first");
     return;
   }
-
   const formData = new FormData();
   formData.append("file", selectedFile);
 
   try {
     const response = await axios.post(
-       "http://13.63.45.208:5000/predict",
+       "http://16.16.75.114:5000/predict",
       formData
     );
 
@@ -156,10 +181,89 @@ const handlePredict = async () => {
     alert("Prediction failed");
   }
 };
+  const handleLogin = async () => {
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
 
+  try {
+    const response = await axios.post(
+      "http://16.16.75.114:5000/login",
+      {
+        email,
+        password
+      }
+    );
+
+    alert(response.data.message);
+    setIsLoggedIn(true);
+
+  } catch (error) {
+    alert(
+      error.response?.data?.message ||
+      "Invalid Email or Password"
+    );
+  }
+};
+    const handleAdminLogin = async () => {
+  try {
+    const response = await axios.post(
+      "http://16.16.75.114:5000/admin/login",
+      {
+        username: email,
+        password: password
+      }
+    );
+
+    alert(response.data.message);
+
+    setIsAdmin(true);
+    setIsLoggedIn(true);
+
+  } catch (error) {
+    alert("Invalid Admin Credentials");
+  }
+};
+  
+  const getWeather = async () => {
+  try {
+   const response = await axios.get(
+  `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric`
+);
+    setWeatherData(response.data);
+  } catch (error) {
+    alert("City not found");
+    console.error(error);
+  }
+};
+     const getCropRecommendation = async () => {
+  try {
+    const response = await axios.post(
+      "http://16.16.75.114:5000/crop-recommend",
+      {
+        N: Number(N),
+        P: Number(P),
+        K: Number(K),
+        temperature: 25,
+        humidity: 80,
+        ph: Number(ph),
+        rainfall: Number(rainfall)
+      }
+    );
+
+    setRecommendedCrop(
+      response.data.recommended_crop
+    );
+
+  } catch (error) {
+    console.error(error);
+    alert("Crop recommendation failed");
+  }
+};
   // AUTHENTICATION
   // AUTHENTICATION
-const handleSignup = async () => {
+  const handleSignup = async () => {
   if (!name || !address || !cropType || !email || !phone || !password) {
     alert("Please fill all fields");
     return;
@@ -167,7 +271,7 @@ const handleSignup = async () => {
 
   try {
     const response = await axios.post(
-      "http://13.63.45.208:5000/signup",
+     "http://16.16.75.114:5000/signup",
       {
         name,
         email,
@@ -253,6 +357,19 @@ const handleSignup = async () => {
           <button onClick={isLogin ? handleLogin : handleSignup} style={loginBtn}>
             {isLogin ? "Login" : "Create Account"}
           </button>
+              {isLogin && (
+  <button
+    onClick={handleAdminLogin}
+    style={{
+      ...loginBtn,
+      marginTop: "10px",
+      background: "#222",
+      color: "white"
+    }}
+  >
+    Admin Login
+  </button>
+)}
 
           <p style={{ textAlign: "center", marginTop: "20px" }}>
             {isLogin ? "Don't have an account?" : "Already have an account?"}
@@ -264,11 +381,51 @@ const handleSignup = async () => {
           >
             {isLogin ? "Sign Up" : "Login"}
           </button>
-        </div>
+         </div>
       </div>
     );
   }
 
+if (isAdmin) {
+  return (
+    <div style={{ padding: "30px" }}>
+      <h1>Admin Dashboard</h1>
+
+      <h2>Total Users: {users.length}</h2>
+
+      <table
+        border="1"
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginTop: "20px"
+        }}
+      >
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {users.map((user) => (
+            <tr key={user[0]}>
+              <td>{user[0]}</td>
+              <td>{user[1]}</td>
+              <td>{user[2]}</td>
+              <td>{user[3]}</td>
+              <td>{user[4]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
   // MAIN WEBSITE
   return (
     <div style={{ minHeight: "100vh", background: "#f4fff4", fontFamily: "Arial" }}>
@@ -285,6 +442,21 @@ const handleSignup = async () => {
           <button style={navBtn} onClick={() => setPage("upload")}>Upload</button>
           <button style={navBtn} onClick={() => setPage("fertilizers")}>Fertilizers</button>
           <button style={navBtn} onClick={() => setPage("market")}>Market Price</button>
+          <button style={navBtn} onClick={() => setPage("croprec")}>
+  Crop Recommendation
+</button>
+          <button
+  style={navBtn}
+  onClick={() => setPage("weather")}
+>
+  Weather
+</button>
+          <button
+  style={navBtn}
+  onClick={() => setPage("schemes")}
+>
+  Schemes
+</button>
           <button style={navBtn} onClick={() => setPage("profile")}>Profile</button>
           <button style={navBtn} onClick={() => setIsLoggedIn(false)}>Logout</button>
         </div>
@@ -434,6 +606,308 @@ const handleSignup = async () => {
               </div>
             </>
           )}
+        </div>
+      )}
+{/* CROP RECOMMENDATION */}
+{page === "croprec" && (
+  <div style={{ padding: "40px" }}>
+    <h1 style={pageTitle}>🌾 Crop Recommendation</h1>
+
+    <div
+      style={{
+        background: "white",
+        padding: "30px",
+        borderRadius: "20px",
+        maxWidth: "700px",
+        margin: "auto"
+      }}
+    >
+      <input
+        type="number"
+        placeholder="Nitrogen (N)"
+        value={N}
+        onChange={(e) => setN(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "15px",
+          borderRadius: "10px",
+          marginBottom: "15px"
+        }}
+      />
+
+      <input
+        type="number"
+        placeholder="Phosphorus (P)"
+        value={P}
+        onChange={(e) => setP(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "15px",
+          borderRadius: "10px",
+          marginBottom: "15px"
+        }}
+      />
+
+      <input
+        type="number"
+        placeholder="Potassium (K)"
+        value={K}
+        onChange={(e) => setK(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "15px",
+          borderRadius: "10px",
+          marginBottom: "15px"
+        }}
+      />
+
+      <input
+        type="number"
+        placeholder="pH"
+        value={ph}
+        onChange={(e) => setPh(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "15px",
+          borderRadius: "10px",
+          marginBottom: "15px"
+        }}
+      />
+
+      <input
+        type="number"
+        placeholder="Rainfall"
+        value={rainfall}
+        onChange={(e) => setRainfall(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "15px",
+          borderRadius: "10px",
+          marginBottom: "20px"
+        }}
+      />
+
+      <button
+        style={loginBtn}
+        onClick={getCropRecommendation}
+      >
+        Recommend Crop
+      </button>
+
+      {recommendedCrop && (
+        <div style={{ marginTop: "25px", textAlign: "center" }}>
+          <h2>🌾 Recommended Crop</h2>
+          <h1 style={{ color: "green" }}>
+            {recommendedCrop}
+          </h1>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+{/* WEATHER */}
+{page === "weather" && (
+  <div style={{ padding: "40px" }}>
+    <h1 style={pageTitle}>🌦️ Weather Forecast</h1>
+
+    <div
+      style={{
+        background: "white",
+        padding: "30px",
+        borderRadius: "20px",
+        maxWidth: "600px",
+        margin: "auto",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
+      }}
+    >
+      <input
+        type="text"
+        placeholder="Enter City Name"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "15px",
+          borderRadius: "10px",
+          border: "1px solid #ccc",
+          marginBottom: "20px"
+        }}
+      />
+
+      <button
+  style={loginBtn}
+  onClick={getWeather}
+>
+  Get Weather
+</button>
+
+      {weatherData && (
+        <div style={{ marginTop: "30px" }}>
+          <h2>📍 {weatherData.name}</h2>
+<h3>🌡️ Temperature: {weatherData.main.temp}°C</h3>
+<h3>💧 Humidity: {weatherData.main.humidity}%</h3>
+<h3>☁️ Condition: {weatherData.weather[0].main}</h3>
+<h3>🌬️ Wind Speed: {weatherData.wind.speed} m/s</h3>
+</div>
+      )}
+         
+    </div>
+  </div>
+)}
+          {/* GOVERNMENT SCHEMES */}
+      {page === "schemes" && (
+        <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
+          <h1 style={pageTitle}>🏛️ Government Schemes for Farmers</h1>
+
+          <div style={gridStyle}>
+
+            <div style={card}>
+  <img
+    src="https://pmkisan.gov.in/images/pmkisanlogo.png"
+    alt="PM Kisan"
+    style={{
+      width: "100%",
+      height: "180px",
+      objectFit: "contain",
+      marginTop: "15px"
+    }}
+  />
+
+  <h2 style={cardTitle}>PM Kisan</h2>
+
+  <p style={{ padding: "15px" }}>
+    Provides ₹6000 per year financial assistance to eligible farmers.
+  </p>
+
+  <div style={{ textAlign: "center", marginBottom: "20px" }}>
+    <button
+      onClick={() =>
+        window.open("https://pmkisan.gov.in/", "_blank")
+      }
+      style={{
+        padding: "12px 20px",
+        background: "green",
+        color: "white",
+        border: "none",
+        borderRadius: "10px",
+        cursor: "pointer"
+      }}
+    >
+      Apply Now
+    </button>
+  </div>
+</div>
+<div style={card}>
+  <img
+    src="https://pmsuryaghar.gov.in/assets/images/logo.png"
+    alt="PM Surya Ghar"
+    style={{
+      width: "100%",
+      height: "180px",
+      objectFit: "contain",
+      marginTop: "15px"
+    }}
+  />
+
+  <h2 style={cardTitle}>PM Surya Ghar</h2>
+
+  <p style={{ padding: "15px" }}>
+    Solar rooftop subsidy scheme helping farmers reduce electricity costs.
+  </p>
+
+  <div style={{ textAlign: "center", marginBottom: "20px" }}>
+    <button
+      onClick={() =>
+        window.open("https://pmsuryaghar.gov.in/", "_blank")
+      }
+      style={{
+        padding: "12px 20px",
+        background: "green",
+        color: "white",
+        border: "none",
+        borderRadius: "10px",
+        cursor: "pointer"
+      }}
+    >
+      Apply Now
+    </button>
+  </div>
+</div>
+
+            <div style={card}>
+  <img
+    src="https://pmfby.gov.in/images/logo.png"
+    alt="Crop Insurance"
+    style={{
+      width: "100%",
+      height: "180px",
+      objectFit: "contain",
+      marginTop: "15px"
+    }}
+  />
+
+  <h2 style={cardTitle}>Crop Insurance Scheme</h2>
+
+  <p style={{ padding: "15px" }}>
+    Protection against crop loss due to natural disasters and climate risks.
+  </p>
+
+  <div style={{ textAlign: "center", marginBottom: "20px" }}>
+    <button
+      onClick={() =>
+        window.open("https://pmfby.gov.in/", "_blank")
+      }
+      style={{
+        padding: "12px 20px",
+        background: "green",
+        color: "white",
+        border: "none",
+        borderRadius: "10px",
+        cursor: "pointer"
+      }}
+    >
+      Apply Now
+    </button>
+  </div>
+</div>
+
+            <div style={card}>
+  <img
+    src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png"
+    alt="Kisan Credit Card"
+    style={{
+      width: "100%",
+      height: "180px",
+      objectFit: "contain",
+      marginTop: "15px"
+    }}
+  />
+
+  <h2 style={cardTitle}>Kisan Credit Card</h2>
+
+  <p style={{ padding: "15px" }}>
+    Provides agricultural loans at subsidized interest rates for farmers.
+  </p>
+
+  <div style={{ textAlign: "center", marginBottom: "20px" }}>
+    <button
+      onClick={() =>
+        window.open("https://www.myscheme.gov.in/schemes/kcc", "_blank")
+      }
+      style={{
+        padding: "12px 20px",
+        background: "green",
+        color: "white",
+        border: "none",
+        borderRadius: "10px",
+        cursor: "pointer"
+      }}
+    >
+      Apply Now
+    </button>
+  </div>
+</div>
+          </div>
         </div>
       )}
 

@@ -214,6 +214,100 @@ def crop_recommend():
     return jsonify({
         "recommended_crop": prediction[0]
     })
+@app.route("/add-disease", methods=["POST"])
+def add_disease():
+    data = request.json
+
+    sql = """
+    INSERT INTO diseases
+    (name, crop, image, definition, treatment,
+     prevention, severity, yield_loss)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+    """
+
+    values = (
+        data["name"],
+        data["crop"],
+        data["image"],
+        data["definition"],
+        data["treatment"],
+        data["prevention"],
+        data["severity"],
+        data["yield_loss"]
+    )
+
+    cursor.execute(sql, values)
+    db.commit()
+
+    return jsonify({
+        "message": "Disease Added Successfully"
+    })
+@app.route("/diseases", methods=["GET"])
+def get_diseases():
+    cursor.execute("SELECT * FROM diseases")
+    rows = cursor.fetchall()
+
+    diseases = []
+
+    for row in rows:
+        diseases.append({
+            "id": row[0],
+            "name": row[1],
+            "crop": row[2],
+            "image": row[3],
+            "definition": row[4],
+            "treatment": row[5],
+            "prevention": row[6],
+            "severity": row[7],
+            "yield_loss": row[8]
+        })
+
+    return jsonify(diseases)
+
+@app.route("/market-prices", methods=["GET"])
+def market_prices():
+
+    cursor.execute("""
+        SELECT crop, price, image
+        FROM market_prices
+    """)
+
+    rows = cursor.fetchall()
+
+    prices = []
+
+    for row in rows:
+        prices.append({
+            "crop": row[0],
+            "price": row[1],
+            "image": row[2]
+        })
+
+    return jsonify(prices)
+
+@app.route("/add-market-price", methods=["POST"])
+def add_market_price():
+
+    data = request.json
+
+    sql = """
+    INSERT INTO market_prices
+    (crop, price, image)
+    VALUES (%s,%s,%s)
+    """
+
+    values = (
+        data["crop"],
+        data["price"],
+        data["image"]
+    )
+
+    cursor.execute(sql, values)
+    db.commit()
+
+    return jsonify({
+        "message": "Market Price Added Successfully"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

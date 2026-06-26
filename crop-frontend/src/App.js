@@ -1,19 +1,33 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { jsPDF } from "jspdf";
 
 export default function App() {
   // LOGIN
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-  const [isAccountCreated, setIsAccountCreated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
+    
+  const [diseaseName, setDiseaseName] = useState("");
+  const [cropName, setCropName] = useState("");
+  const [diseaseImage, setDiseaseImage] = useState("");
+  const [definition, setDefinition] = useState("");
+  const [treatment, setTreatment] = useState("");
+  const [prevention, setPrevention] = useState("");
+  const [severity, setSeverity] = useState("");
+  const [yieldLoss, setYieldLoss] = useState("");
+  const [marketCrop, setMarketCrop] = useState("");
+  const [marketPrice, setMarketPrice] = useState("");
+  const [marketImage, setMarketImage] = useState("");
 
   // APP
   const [page, setPage] = useState("home");
+  const [language, setLanguage] = useState("en");
   const [uploadedImage, setUploadedImage] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
-const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageBase64, setImageBase64] = useState("");
   const [prediction, setPrediction] = useState(null);
     
   // AI CHAT
@@ -32,13 +46,11 @@ const [selectedFile, setSelectedFile] = useState(null);
 
   // MARKET API STATE
   const [marketPrices, setMarketPrices] = useState([]);
+  const [diseases, setDiseases] = useState([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   // WEATHER STATE  
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
-  const [location, setLocation] = useState("");
-  const [recommendedCrops, setRecommendedCrops] = useState([]);
-  const [soilType, setSoilType] = useState("");
   const [N, setN] = useState("");
   const [P, setP] = useState("");
   const [K, setK] = useState("");
@@ -59,29 +71,40 @@ const [selectedFile, setSelectedFile] = useState(null);
     return () => clearInterval(interval);
   }, [sliderImages.length]);
 
-  // MARKET PRICE MOCK API
   useEffect(() => {
-    if (page === "market") {
-      setIsLoadingPrices(true);
-      setTimeout(() => {
-        const fetchedApiData = [
-          { crop: "Rice", price: Math.floor(Math.random() * 500) + 2200, image: "https://images.pexels.com/photos/4110251/pexels-photo-4110251.jpeg" },
-          { crop: "Tomato", price: Math.floor(Math.random() * 300) + 1600, image: "https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg" },
-          { crop: "Onion", price: Math.floor(Math.random() * 400) + 2000, image: "https://images.pexels.com/photos/4197445/pexels-photo-4197445.jpeg" },
-          { crop: "Wheat", price: Math.floor(Math.random() * 300) + 2000, image: "https://images.pexels.com/photos/326082/pexels-photo-326082.jpeg" },
-          { crop: "Corn", price: Math.floor(Math.random() * 200) + 1600, image: "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg" },
-          { crop: "Potato", price: Math.floor(Math.random() * 200) + 1300, image: "https://images.pexels.com/photos/2286776/pexels-photo-2286776.jpeg" },
-        ];
-        setMarketPrices(fetchedApiData);
+  axios
+    .get("http://16.16.75.9:5000/diseases")
+    .then((response) => {
+      setDiseases(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}, []);
+
+  // MARKET PRICE MOCK API
+  // MARKET PRICE API
+useEffect(() => {
+  if (page === "market") {
+    setIsLoadingPrices(true);
+
+    axios
+      .get("http://16.16.75.9:5000/market-prices")
+      .then((response) => {
+        setMarketPrices(response.data);
         setIsLoadingPrices(false);
-      }, 1500);
-    }
-  }, [page]);
+      })
+      .catch((error) => {
+        console.error(error);
+        setIsLoadingPrices(false);
+      });
+  }
+}, [page]);
     
     useEffect(() => {
   if (isAdmin) {
     axios
-      .get("http://16.16.75.114:5000/admin/users")
+      .get("http://16.16.75.9:5000/admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -106,61 +129,301 @@ const [selectedFile, setSelectedFile] = useState(null);
 
   // 20 DISEASE DATA ENTRIES
   const diseaseData = [
-    { name: "Rice Blast", crop: "Rice", image: "https://images.pexels.com/photos/1268101/pexels-photo-1268101.jpeg", definition: "A highly destructive fungal disease causing lesions on leaves and stems.", region: "Humid and wet regions" },
-    { name: "Leaf Spot", crop: "Rice / Wheat", image: "https://images.pexels.com/photos/1459505/pexels-photo-1459505.jpeg", definition: "Causes brown or black spots on leaves, stunting plant growth and yield.", region: "Global, common in damp conditions" },
-    { name: "Tomato Wilt", crop: "Tomato", image: "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg", definition: "Soil-borne pathogens block water vessels, causing sudden drying of the plant.", region: "Warm, tropical climates" },
-    { name: "Corn Smut", crop: "Corn", image: "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg", definition: "Fungal disease creating large, grayish galls on the ears of the corn.", region: "Dry, hot agricultural zones" },
-    { name: "Wheat Rust", crop: "Wheat", image: "https://images.pexels.com/photos/326082/pexels-photo-326082.jpeg", definition: "Appears as rust-colored powdery pustules on the stems and leaves.", region: "Temperate farming belts" },
-    { name: "Powdery Mildew", crop: "Grapes / Apples", image: "https://images.pexels.com/photos/2886937/pexels-photo-2886937.jpeg", definition: "Forms a white powdery fungal growth on the surface of leaves.", region: "High humidity areas" },
-    { name: "Downy Mildew", crop: "Cucumbers", image: "https://images.pexels.com/photos/10050979/pexels-photo-10050979.jpeg", definition: "Creates yellow angular spots on upper leaves and gray fuzz underneath.", region: "Cool, moist environments" },
-    { name: "Early Blight", crop: "Potato / Tomato", image: "https://images.pexels.com/photos/2286776/pexels-photo-2286776.jpeg", definition: "Causes dark, concentric rings on older foliage, reducing crop lifespan.", region: "Sub-tropical regions" },
-    { name: "Late Blight", crop: "Potato", image: "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg", definition: "Notorious for the Irish Potato Famine, rots foliage and tubers rapidly.", region: "Cool, wet areas" },
-    { name: "Citrus Canker", crop: "Citrus Fruits", image: "https://images.pexels.com/photos/2294471/pexels-photo-2294471.jpeg", definition: "Bacterial disease causing raised, corky lesions on fruit and leaves.", region: "Tropical and subtropical zones" },
-    { name: "Apple Scab", crop: "Apple", image: "https://images.pexels.com/photos/209424/pexels-photo-209424.jpeg", definition: "Fungal disease leaving dark, scabby lesions on the fruit surface.", region: "Regions with rainy springs" },
-    { name: "Root Rot", crop: "Various", image: "https://images.pexels.com/photos/4110251/pexels-photo-4110251.jpeg", definition: "Caused by poor drainage, attacking the root system and killing the plant.", region: "Waterlogged soils globally" },
-    { name: "Anthracnose", crop: "Beans / Mango", image: "https://images.pexels.com/photos/4197445/pexels-photo-4197445.jpeg", definition: "Creates dark, sunken lesions on stems, leaves, and fruits.", region: "Warm and humid climates" },
-    { name: "Black Stem Rust", crop: "Wheat", image: "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg", definition: "A severe rust disease causing massive crop lodging and yield loss.", region: "Global wheat-growing areas" },
-    { name: "Fusarium Wilt", crop: "Banana / Tomato", image: "https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg", definition: "A fungus entering through roots, turning leaves yellow and wilting them.", region: "Tropical soils" },
-    { name: "Bacterial Blight", crop: "Cotton / Rice", image: "https://images.pexels.com/photos/1268101/pexels-photo-1268101.jpeg", definition: "Water-soaked streaks appear on leaves, eventually killing the foliage.", region: "Monsoon regions" },
-    { name: "Fire Blight", crop: "Pear / Apple", image: "https://images.pexels.com/photos/1459505/pexels-photo-1459505.jpeg", definition: "Bacterial infection making branches look blackened and scorched by fire.", region: "Temperate orchards" },
-    { name: "Mosaic Virus", crop: "Tobacco / Tomato", image: "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg", definition: "Causes a mottled, mosaic-like pattern on leaves, stunting growth.", region: "Widespread, spread by aphids" },
-    { name: "Clubroot", crop: "Cabbage", image: "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg", definition: "Causes roots to swell and distort, preventing nutrient absorption.", region: "Acidic soil regions" },
-    { name: "Soybean Rust", crop: "Soybean", image: "https://images.pexels.com/photos/326082/pexels-photo-326082.jpeg", definition: "Aggressive fungal disease causing rapid defoliation of soybean plants.", region: "South America and Southern US" }
+    { name: "Rice Blast", crop: "Rice", image: "/Diseases/Rice-Blast.png", definition: "A highly destructive fungal disease causing lesions on leaves and stems.", region: "Humid and wet regions", treatment: [
+    "Apply Tricyclazole fungicide",
+    "Avoid excess nitrogen fertilizer",
+    "Improve field drainage"
+  ]},
+    { name: "Leaf Spot", crop: "Rice / Wheat", image: "/Diseases/leaf-spot.jpg", definition: "Causes brown or black spots on leaves, stunting plant growth and yield.", region: "Global, common in damp conditions", treatment: [
+    "Remove infected plants",
+    "Use disease-resistant varieties",
+    "Improve soil drainage"
+  ] },
+    { name: "Tomato Wilt", crop: "Tomato", image: "/Diseases/Tomato-Wilt.jpg", definition: "Soil-borne pathogens block water vessels, causing sudden drying of the plant.", region: "Warm, tropical climates", treatment: [
+    "Remove infected ears",
+    "Rotate crops",
+    "Use certified seeds"
+  ] },
+    { name: "Corn Smut", crop: "Corn", image: "/Diseases/Corn-Smut.jpg", definition: "Fungal disease creating large, grayish galls on the ears of the corn.", region: "Dry, hot agricultural zones", treatment: [
+    "Remove infected ears",
+    "Rotate crops",
+    "Use certified seeds"
+  ] },
+    { name: "Wheat Rust", crop: "Wheat", image: "/Diseases/Wheat-Rust.jpg", definition: "Appears as rust-colored powdery pustules on the stems and leaves.", region: "Temperate farming belts",  treatment: [
+    "Apply fungicides early",
+    "Plant resistant varieties",
+    "Remove infected plant debris"
+  ] },
+    { name: "Powdery Mildew", crop: "Grapes / Apples", image: "/Diseases/Powdery-Mildew.jpg", definition: "Forms a white powdery fungal growth on the surface of leaves.", region: "High humidity areas", treatment: [
+    "Apply sulfur fungicide",
+    "Improve air circulation",
+    "Avoid overhead watering"
+  ] },
+    { name: "Downy Mildew", crop: "Cucumbers", image: "/Diseases/downy-mildew.webp", definition: "Creates yellow angular spots on upper leaves and gray fuzz underneath.", region: "Cool, moist environments", treatment: [
+    "Use copper fungicide",
+    "Remove infected leaves",
+    "Improve drainage"] },
+    { name: "Early Blight", crop: "Potato / Tomato", image: "/Diseases/Early-Blight.jpg", definition: "Causes dark, concentric rings on older foliage, reducing crop lifespan.", region: "Sub-tropical regions", treatment: [
+    "Apply fungicides",
+    "Rotate crops",
+    "Remove infected leaves"
+  ] },
+    { name: "Late Blight", crop: "Potato", image: "/Diseases/Late-Blight.jpg", definition: "Notorious for the Irish Potato Famine, rots foliage and tubers rapidly.", region: "Cool, wet areas", treatment: [
+    "Destroy infected plants",
+    "Apply protective fungicides",
+    "Avoid excess moisture"
+  ] },
+    { name: "Citrus Canker", crop: "Citrus Fruits", image: "/Diseases/Citrus-Canker.jpg", definition: "Bacterial disease causing raised, corky lesions on fruit and leaves.", region: "Tropical and subtropical zones", treatment: [
+    "Prune infected branches",
+    "Apply copper sprays",
+    "Use disease-free seedlings"
+  ] },
+    { name: "Apple Scab", crop: "Apple", image: "/Diseases/Apple-Scab.jpg", definition: "Fungal disease leaving dark, scabby lesions on the fruit surface.", region: "Regions with rainy springs", treatment: [
+    "Apply fungicides",
+    "Remove fallen leaves",
+    "Plant resistant varieties"
+  ] },
+    { name: "Root Rot", crop: "Various", image: "/Diseases/Root-Rot.jpg", definition: "Caused by poor drainage, attacking the root system and killing the plant.", region: "Waterlogged soils globally",  treatment: [
+    "Improve soil drainage",
+    "Avoid overwatering",
+    "Remove affected plants"
+  ] },
+    { name: "Anthracnose", crop: "Beans / Mango", image: "/Diseases/Anthracnose.jpg", definition: "Creates dark, sunken lesions on stems, leaves, and fruits.", region: "Warm and humid climates", treatment: [
+    "Apply fungicides",
+    "Prune infected parts",
+    "Maintain field sanitation"
+  ] },
+    { name: "Black Stem Rust", crop: "Wheat", image: "/Diseases/Black-Stem.jpg", definition: "A severe rust disease causing massive crop lodging and yield loss.", region: "Global wheat-growing areas", treatment: [
+    "Grow resistant varieties",
+    "Apply fungicides",
+    "Remove alternate hosts"
+  ] },
+    { name: "Fusarium Wilt", crop: "Banana / Tomato", image: "/Diseases/fusarium-wilt.webp", definition: "A fungus entering through roots, turning leaves yellow and wilting them.", region: "Tropical soils",  treatment: [
+    "Use resistant varieties",
+    "Rotate crops",
+    "Improve soil health"
+  ] },
+    { name: "Bacterial Blight", crop: "Cotton / Rice", image: "/Diseases/Bacterial-Blight.jpg", definition: "Water-soaked streaks appear on leaves, eventually killing the foliage.", region: "Monsoon regions",  treatment: [
+    "Use certified seeds",
+    "Avoid field overcrowding",
+    "Apply recommended bactericides"
+  ] },
+    { name: "Fire Blight", crop: "Pear / Apple", image: "/Diseases/Fire-Blight.jpg", definition: "Bacterial infection making branches look blackened and scorched by fire.", region: "Temperate orchards",  treatment: [
+    "Prune infected branches",
+    "Disinfect tools",
+    "Apply copper sprays"
+  ] },
+    { name: "Mosaic Virus", crop: "Tobacco / Tomato", image: "/Diseases/Mosaic-Virus.jpg", definition: "Causes a mottled, mosaic-like pattern on leaves, stunting growth.", region: "Widespread, spread by aphids",  treatment: [
+    "Remove infected plants",
+    "Control aphids",
+    "Use virus-free seeds"
+  ] },
+    { name: "Clubroot", crop: "Cabbage", image: "/Diseases/Clubroot.jpg", definition: "Causes roots to swell and distort, preventing nutrient absorption.", region: "Acidic soil regions", treatment: [
+    "Increase soil pH with lime",
+    "Improve drainage",
+    "Rotate crops"
+  ] },
+    { name: "Soybean Rust", crop: "Soybean", image: "/Diseases/Soybean-Rust.jpg", definition: "Aggressive fungal disease causing rapid defoliation of soybean plants.", region: "South America and Southern US",  treatment: [
+    "Apply fungicides",
+    "Monitor fields regularly",
+    "Use resistant varieties"
+  ] }
   ];
+
+const diseaseInfo = {
+  "Rice Blast": {
+    treatment: [
+      "Apply Tricyclazole fungicide",
+      "Improve drainage"
+    ],
+    prevention: [
+      "Use resistant varieties",
+      "Avoid excess nitrogen"
+    ],
+    severity: "High",
+    yieldLoss: "20-40%"
+  },
+
+  "Tomato Wilt": {
+    treatment: [
+      "Remove infected plants",
+      "Improve soil drainage"
+    ],
+    prevention: [
+      "Use resistant varieties",
+      "Rotate crops"
+    ],
+    severity: "Medium",
+    yieldLoss: "15-30%"
+  },
+
+  "Corn Smut": {
+    treatment: [
+      "Remove infected ears",
+      "Rotate crops"
+    ],
+    prevention: [
+      "Use certified seeds",
+      "Field sanitation"
+    ],
+    severity: "Low",
+    yieldLoss: "5-15%"
+  },
+"Apple___Apple_scab": {
+  treatment: [
+    "Apply fungicides regularly",
+    "Remove infected leaves"
+  ],
+  prevention: [
+    "Prune trees for airflow",
+    "Avoid overhead irrigation"
+  ],
+  severity: "Medium",
+  yieldLoss: "10-30%"
+},
+
+"Tomato___Septoria_leaf_spot": {
+  treatment: [
+    "Apply chlorothalonil fungicide",
+    "Remove infected leaves"
+  ],
+  prevention: [
+    "Maintain proper spacing",
+    "Avoid overhead watering"
+  ],
+  severity: "Medium",
+  yieldLoss: "20-50%"
+},
+
+"Tomato___Late_blight": {
+  treatment: [
+    "Apply copper fungicide",
+    "Destroy infected plants"
+  ],
+  prevention: [
+    "Improve air circulation",
+    "Avoid excess moisture"
+  ],
+  severity: "High",
+  yieldLoss: "40-80%"
+},
+
+"Tomato___Early_blight": {
+  treatment: [
+    "Use fungicides regularly",
+    "Remove infected leaves"
+  ],
+  prevention: [
+    "Rotate crops",
+    "Use healthy seeds"
+  ],
+  severity: "Medium",
+  yieldLoss: "20-40%"
+},
+
+"Pepper,_bell___Bacterial_spot": {
+  treatment: [
+    "Apply copper-based bactericides",
+    "Remove infected leaves"
+  ],
+  prevention: [
+    "Use disease-free seeds",
+    "Avoid working with wet plants"
+  ],
+  severity: "Medium",
+  yieldLoss: "15-40%"
+}
+};
 
   // 20 FERTILIZER DATA ENTRIES
   const fertilizerData = [
-    { name: "Organic Compost", image: "https://images.pexels.com/photos/5503257/pexels-photo-5503257.jpeg", definition: "Natural decomposed matter improving soil fertility and water retention." },
-    { name: "Nitrogen Fertilizer (Urea)", image: "https://images.pexels.com/photos/4207909/pexels-photo-4207909.jpeg", definition: "High nitrogen content to rapidly boost green leaf growth in early stages." },
-    { name: "Potassium Mix (Potash)", image: "https://images.pexels.com/photos/4505161/pexels-photo-4505161.jpeg", definition: "Improves overall plant strength, root health, and drought resistance." },
-    { name: "Bio Fertilizer", image: "https://images.pexels.com/photos/6231743/pexels-photo-6231743.jpeg", definition: "Contains living microbes that naturally fix atmospheric nitrogen into the soil." },
-    { name: "Phosphorus (DAP)", image: "https://images.pexels.com/photos/5503257/pexels-photo-5503257.jpeg", definition: "Crucial for flower formation, seed production, and strong root systems." },
-    { name: "Bone Meal", image: "https://images.pexels.com/photos/4207909/pexels-photo-4207909.jpeg", definition: "An organic slow-release source of phosphorus and calcium for flowering plants." },
-    { name: "Blood Meal", image: "https://images.pexels.com/photos/4505161/pexels-photo-4505161.jpeg", definition: "A highly concentrated organic nitrogen source, perfect for heavy feeders like corn." },
-    { name: "Seaweed Extract", image: "https://images.pexels.com/photos/6231743/pexels-photo-6231743.jpeg", definition: "Provides trace minerals and natural growth hormones to boost plant immunity." },
-    { name: "Fish Emulsion", image: "https://images.pexels.com/photos/5503257/pexels-photo-5503257.jpeg", definition: "Fast-acting organic liquid fertilizer rich in nitrogen and micronutrients." },
-    { name: "Worm Castings", image: "https://images.pexels.com/photos/4207909/pexels-photo-4207909.jpeg", definition: "Earthworm waste that gently conditions the soil and adds rich, accessible nutrients." },
-    { name: "Green Manure", image: "https://images.pexels.com/photos/4505161/pexels-photo-4505161.jpeg", definition: "Cover crops grown specifically to be tilled back into the soil to improve fertility." },
-    { name: "Calcium Nitrate", image: "https://images.pexels.com/photos/6231743/pexels-photo-6231743.jpeg", definition: "Helps prevent blossom end rot in tomatoes and strengthens plant cell walls." },
-    { name: "Epsom Salt (Magnesium)", image: "https://images.pexels.com/photos/5503257/pexels-photo-5503257.jpeg", definition: "Provides magnesium to help plants absorb phosphorus and create chlorophyll." },
-    { name: "Ammonium Sulfate", image: "https://images.pexels.com/photos/4207909/pexels-photo-4207909.jpeg", definition: "Excellent for lowering soil pH while delivering a heavy dose of nitrogen." },
-    { name: "Zinc Sulfate", image: "https://images.pexels.com/photos/4505161/pexels-photo-4505161.jpeg", definition: "Vital for leaf sizing and managing zinc deficiencies in pecan trees and corn." },
-    { name: "Peat Moss", image: "https://images.pexels.com/photos/6231743/pexels-photo-6231743.jpeg", definition: "A soil amendment that helps acidic-loving crops and drastically improves water retention." },
-    { name: "Guano Fertilizer", image: "https://images.pexels.com/photos/5503257/pexels-photo-5503257.jpeg", definition: "Bat droppings providing a rich, organic blend of NPK and trace minerals." },
-    { name: "Liquid Kelp", image: "https://images.pexels.com/photos/4207909/pexels-photo-4207909.jpeg", definition: "Used as a foliar spray to rapidly deliver micro-nutrients directly to the leaves." },
-    { name: "Rock Phosphate", image: "https://images.pexels.com/photos/4505161/pexels-photo-4505161.jpeg", definition: "A long-term organic phosphorus source that breaks down slowly over years." },
-    { name: "NPK 10-10-10", image: "https://images.pexels.com/photos/6231743/pexels-photo-6231743.jpeg", definition: "A perfectly balanced synthetic fertilizer suitable for general-purpose gardening." }
+    { name: "Organic Compost", image: "/Fertilizers/Organic-Compost.jpg", definition: "Natural decomposed matter improving soil fertility and water retention." },
+    { name: "Nitrogen Fertilizer (Urea)", image: "/Fertilizers/Nitrogen-Fertilizer.webp", definition: "High nitrogen content to rapidly boost green leaf growth in early stages." },
+    { name: "Potassium Mix (Potash)", image: "/Fertilizers/Potassium Mix.webp", definition: "Improves overall plant strength, root health, and drought resistance." },
+    { name: "Bio Fertilizer", image: "/Fertilizers/Bio Fertilizer.jpg", definition: "Contains living microbes that naturally fix atmospheric nitrogen into the soil." },
+    { name: "Phosphorus (DAP)", image: "/Fertilizers/Phosphorus (DAP).webp", definition: "Crucial for flower formation, seed production, and strong root systems." },
+    { name: "Bone Meal", image: "/Fertilizers/Bone Meal.webp", definition: "An organic slow-release source of phosphorus and calcium for flowering plants." },
+    { name: "Blood Meal", image: "/Fertilizers/Blood Meal.webp", definition: "A highly concentrated organic nitrogen source, perfect for heavy feeders like corn." },
+    { name: "Seaweed Extract", image: "/Fertilizers/Seaweed Extract.webp", definition: "Provides trace minerals and natural growth hormones to boost plant immunity." },
+    { name: "Fish Emulsion", image: "/Fertilizers/Fish Emulsion.jpg", definition: "Fast-acting organic liquid fertilizer rich in nitrogen and micronutrients." },
+    { name: "Worm Castings", image: "/Fertilizers/Worm Castings.jpeg", definition: "Earthworm waste that gently conditions the soil and adds rich, accessible nutrients." },
+    { name: "Green Manure", image: "/Fertilizers/Green Manure.jpg", definition: "Cover crops grown specifically to be tilled back into the soil to improve fertility." },
+    { name: "Calcium Nitrate", image: "/Fertilizers/Calcium Nitrate.jpg", definition: "Helps prevent blossom end rot in tomatoes and strengthens plant cell walls." },
+    { name: "Epsom Salt (Magnesium)", image: "/Fertilizers/Epsom Salt.webp", definition: "Provides magnesium to help plants absorb phosphorus and create chlorophyll." },
+    { name: "Ammonium Sulfate", image: "/Fertilizers/Ammonium Sulfate.webp", definition: "Excellent for lowering soil pH while delivering a heavy dose of nitrogen." },
+    { name: "Zinc Sulfate", image: "/Fertilizers/Zinc Sulfate.jpg", definition: "Vital for leaf sizing and managing zinc deficiencies in pecan trees and corn." },
+    { name: "Peat Moss", image: "/Fertilizers/Peat Moss.jpg", definition: "A soil amendment that helps acidic-loving crops and drastically improves water retention." },
+    { name: "Guano Fertilizer", image: "/Fertilizers/Guano Fertilizer.jpg", definition: "Bat droppings providing a rich, organic blend of NPK and trace minerals." },
+    { name: "Liquid Kelp", image: "/Fertilizers/Liquid Kelp.jpg", definition: "Used as a foliar spray to rapidly deliver micro-nutrients directly to the leaves." },
+    { name: "Rock Phosphate", image: "/Fertilizers/Rock Phosphate.jpg", definition: "A long-term organic phosphorus source that breaks down slowly over years." },
+    { name: "NPK 10-10-10", image: "/Fertilizers/NPK 10-10-10.jpg", definition: "A perfectly balanced synthetic fertilizer suitable for general-purpose gardening." }
   ];
 
-  const handleImageUpload = (e) => {
-  const file = e.target.files[0];
+    const handleImageUpload = (e) => {
+    const file = e.target.files[0];
 
   if (file) {
     setSelectedFile(file);
-    setUploadedImage(URL.createObjectURL(file));
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setUploadedImage(reader.result);
+      setImageBase64(reader.result);
+    };
+
+    reader.readAsDataURL(file);
   }
 };
+   const downloadReport = () => {
+   const doc = new jsPDF();
 
+  doc.setFontSize(18);
+  doc.text("AgroSage AI - Disease Report", 20, 20);
+
+  // Crop Image
+  if (imageBase64) {
+    doc.addImage(imageBase64, "JPEG", 20, 30, 60, 60);
+  }
+
+  // Disease Details
+  doc.setFontSize(12);
+  doc.text(`Disease: ${prediction.disease}`, 90, 40);
+  doc.text(`Confidence: ${prediction.confidence}%`, 90, 50);
+
+  if (diseaseInfo[prediction.disease]) {
+    doc.text(
+      `Severity: ${diseaseInfo[prediction.disease].severity}`,
+      90,
+      60
+    );
+
+    doc.text(
+      `Yield Loss: ${diseaseInfo[prediction.disease].yieldLoss}`,
+      90,
+      70
+    );
+
+    doc.text("Treatment Suggestions:", 20, 110);
+
+    diseaseInfo[prediction.disease].treatment.forEach((item, index) => {
+      doc.text(`• ${item}`, 25, 120 + index * 10);
+    });
+
+    const treatmentEnd =
+      120 + diseaseInfo[prediction.disease].treatment.length * 10 + 10;
+
+    doc.text("Prevention Tips:", 20, treatmentEnd);
+
+    diseaseInfo[prediction.disease].prevention.forEach((item, index) => {
+      doc.text(`• ${item}`, 25, treatmentEnd + 10 + index * 10);
+    });
+  }
+
+  doc.save("AgroSage_Disease_Report.pdf");
+};
+
+    
   const handlePredict = async () => {
   if (!selectedFile) {
     alert("Please select an image first");
@@ -170,8 +433,8 @@ const [selectedFile, setSelectedFile] = useState(null);
   formData.append("file", selectedFile);
 
   try {
-    const response = await axios.post(
-       "http://16.16.75.114:5000/predict",
+  const response = await axios.post(
+       "http://16.16.75.9:5000/predict",
       formData
     );
 
@@ -181,6 +444,40 @@ const [selectedFile, setSelectedFile] = useState(null);
     alert("Prediction failed");
   }
 };
+  const handleAddDisease = async () => {
+  try {
+    await axios.post(
+      "http://16.16.75.9:5000/add-disease",
+      {
+        name: diseaseName,
+        crop: cropName,
+        image: diseaseImage,
+        definition: definition,
+        treatment: treatment,
+        prevention: prevention,
+        severity: severity,
+        yield_loss: yieldLoss
+      }
+    );
+
+    alert("Disease Added Successfully!");
+
+    setDiseaseName("");
+    setCropName("");
+    setDiseaseImage("");
+    setDefinition("");
+    setTreatment("");
+    setPrevention("");
+    setSeverity("");
+    setYieldLoss("");
+
+  } catch (error) {
+    console.error(error);
+    alert("Error adding disease");
+  }
+};
+  
+   
   const handleLogin = async () => {
   if (!email || !password) {
     alert("Please enter email and password");
@@ -189,7 +486,7 @@ const [selectedFile, setSelectedFile] = useState(null);
 
   try {
     const response = await axios.post(
-      "http://16.16.75.114:5000/login",
+      "http://16.16.75.9:5000/login",
       {
         email,
         password
@@ -209,7 +506,7 @@ const [selectedFile, setSelectedFile] = useState(null);
     const handleAdminLogin = async () => {
   try {
     const response = await axios.post(
-      "http://16.16.75.114:5000/admin/login",
+      "http://16.16.75.9:5000/admin/login",
       {
         username: email,
         password: password
@@ -223,6 +520,29 @@ const [selectedFile, setSelectedFile] = useState(null);
 
   } catch (error) {
     alert("Invalid Admin Credentials");
+  }
+};
+    
+  const handleAddMarketPrice = async () => {
+  try {
+    await axios.post(
+      "http://16.16.75.9:5000/add-market-price",
+      {
+        crop: marketCrop,
+        price: marketPrice,
+        image: marketImage
+      }
+    );
+
+    alert("Market Price Added Successfully!");
+
+    setMarketCrop("");
+    setMarketPrice("");
+    setMarketImage("");
+
+  } catch (error) {
+    console.error(error);
+    alert("Error adding market price");
   }
 };
   
@@ -240,7 +560,7 @@ const [selectedFile, setSelectedFile] = useState(null);
      const getCropRecommendation = async () => {
   try {
     const response = await axios.post(
-      "http://16.16.75.114:5000/crop-recommend",
+      "http://16.16.75.9:5000/crop-recommend",
       {
         N: Number(N),
         P: Number(P),
@@ -261,7 +581,7 @@ const [selectedFile, setSelectedFile] = useState(null);
     alert("Crop recommendation failed");
   }
 };
-  // AUTHENTICATION
+ 
   // AUTHENTICATION
   const handleSignup = async () => {
   if (!name || !address || !cropType || !email || !phone || !password) {
@@ -271,7 +591,7 @@ const [selectedFile, setSelectedFile] = useState(null);
 
   try {
     const response = await axios.post(
-     "http://16.16.75.114:5000/signup",
+     "http://16.16.75.9:5000/signup",
       {
         name,
         email,
@@ -318,7 +638,7 @@ const [selectedFile, setSelectedFile] = useState(null);
             position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 1,
           }}
         >
-          <source src="https://player.vimeo.com/external/477435136.sd.mp4?s=83d5bc0359f1eb175b9f76a16c73df5dd9ec2b12&profile_id=164&oauth2_token_id=57447761" type="video/mp4" />
+          <source src="/display/vedio.webm" type="video/mp4" />
         </video>
 
         <div style={{ position: "absolute", inset: 0, background: "rgba(17, 153, 142, 0.75)", zIndex: 2 }}></div>
@@ -334,29 +654,106 @@ const [selectedFile, setSelectedFile] = useState(null);
         >
           <div style={{ textAlign: "center" }}>
             <h1 style={{ fontSize: "45px", margin: "0 0 10px 0" }}>🌿 AgroSage AI</h1>
+            <div>
+  <button
+    onClick={() =>
+      setLanguage(language === "en" ? "ta" : "en")
+    }
+    style={{
+      background: "white",
+      color: "green",
+      border: "none",
+      padding: "10px 15px",
+      borderRadius: "10px",
+      cursor: "pointer",
+      fontWeight: "bold"
+    }}
+  >
+    {language === "en" ? "தமிழ்" : "English"}
+  </button>
+</div>
             <p style={{ marginBottom: "30px" }}>Smart Agriculture Platform</p>
           </div>
 
           {!isLogin && (
-            <>
-              <input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-              <input type="text" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} style={inputStyle} />
-              <input type="text" placeholder="What crop do you grow? (e.g. Rice)" value={cropType} onChange={(e) => setCropType(e.target.value)} style={inputStyle} />
-            </>
-          )}
+  <>
+    <input
+      type="text"
+      placeholder={
+        language === "en"
+          ? "Full Name"
+          : "முழு பெயர்"
+      }
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      style={inputStyle}
+    />
 
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} /><input
+    <input
+      type="text"
+      placeholder={
+        language === "en"
+          ? "Address"
+          : "முகவரி"
+      }
+      value={address}
+      onChange={(e) => setAddress(e.target.value)}
+      style={inputStyle}
+    />
+
+    <input
+      type="text"
+      placeholder={
+        language === "en"
+          ? "What crop do you grow? (e.g. Rice)"
+          : "நீங்கள் வளர்க்கும் பயிர் என்ன? (உதா: நெல்)"
+      }
+      value={cropType}
+      onChange={(e) => setCropType(e.target.value)}
+      style={inputStyle}
+    />
+  </>
+)}
+
+          <input
+  type="email"
+  placeholder={
+    language === "en"
+      ? "Email"
+      : "மின்னஞ்சல்"
+  }
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  style={inputStyle}
+/>
+          <input
+  type="password"
+  placeholder={
+    language === "en"
+      ? "Password"
+      : "கடவுச்சொல்"
+  }
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  style={inputStyle}
+/>
+      <input
   type="text"
-  placeholder="Phone Number"
+  placeholder={
+    language === "en"
+      ? "Phone Number"
+      : "தொலைபேசி எண்"
+  }
   value={phone}
   onChange={(e) => setPhone(e.target.value)}
   style={inputStyle}
 />
 
           <button onClick={isLogin ? handleLogin : handleSignup} style={loginBtn}>
-            {isLogin ? "Login" : "Create Account"}
-          </button>
+  {isLogin
+    ? (language === "en" ? "Login" : "உள்நுழை")
+    : (language === "en" ? "Create Account" : "கணக்கு உருவாக்கு")}
+</button>
               {isLogin && (
   <button
     onClick={handleAdminLogin}
@@ -367,31 +764,157 @@ const [selectedFile, setSelectedFile] = useState(null);
       color: "white"
     }}
   >
-    Admin Login
+    {language === "en" ? "Admin Login" : "நிர்வாகி உள்நுழைவு"}
   </button>
 )}
 
           <p style={{ textAlign: "center", marginTop: "20px" }}>
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            {isLogin
+  ? (language === "en"
+      ? "Don't have an account?"
+      : "கணக்கு இல்லையா?")
+  : (language === "en"
+      ? "Already have an account?"
+      : "ஏற்கனவே கணக்கு உள்ளதா?")}
           </p>
 
           <button
             onClick={() => setIsLogin(!isLogin)}
             style={{ background: "none", border: "none", color: "white", width: "100%", marginTop: "10px", cursor: "pointer", fontWeight: "bold" }}
           >
-            {isLogin ? "Sign Up" : "Login"}
+           {isLogin
+  ? (language === "en" ? "Sign Up" : "பதிவு செய்க")
+  : (language === "en" ? "Login" : "உள்நுழை")}
           </button>
          </div>
       </div>
     );
   }
-
 if (isAdmin) {
   return (
     <div style={{ padding: "30px" }}>
       <h1>Admin Dashboard</h1>
 
       <h2>Total Users: {users.length}</h2>
+    <h2 style={{ marginTop: "40px" }}>➕ Add Disease</h2>
+
+<input
+  type="text"
+  placeholder="Disease Name"
+  value={diseaseName}
+  onChange={(e) => setDiseaseName(e.target.value)}
+  style={inputStyle}
+/>
+
+<input
+  type="text"
+  placeholder="Crop Name"
+  value={cropName}
+  onChange={(e) => setCropName(e.target.value)}
+  style={inputStyle}
+/>
+
+<input
+  type="text"
+  placeholder="Image URL"
+  value={diseaseImage}
+  onChange={(e) => setDiseaseImage(e.target.value)}
+  style={inputStyle}
+/>
+
+<textarea
+  placeholder="Definition"
+  value={definition}
+  onChange={(e) => setDefinition(e.target.value)}
+  style={inputStyle}
+/>
+
+<textarea
+  placeholder="Treatment"
+  value={treatment}
+  onChange={(e) => setTreatment(e.target.value)}
+  style={inputStyle}
+/>
+
+<textarea
+  placeholder="Prevention"
+  value={prevention}
+  onChange={(e) => setPrevention(e.target.value)}
+  style={inputStyle}
+/>
+
+<input
+  type="text"
+  placeholder="Severity"
+  value={severity}
+  onChange={(e) => setSeverity(e.target.value)}
+  style={inputStyle}
+/>
+
+<input
+  type="text"
+  placeholder="Yield Loss"
+  value={yieldLoss}
+  onChange={(e) => setYieldLoss(e.target.value)}
+  style={inputStyle}
+/>
+
+<button
+  onClick={handleAddDisease}
+  style={{
+    marginTop: "20px",
+    padding: "12px 25px",
+    background: "green",
+    color: "white",
+    border: "none",
+    borderRadius: "10px",
+    cursor: "pointer"
+  }}
+>
+  ➕ Add Disease
+</button>
+      <h2 style={{ marginTop: "40px" }}>
+  📈 Add Market Price
+</h2>
+
+<input
+  type="text"
+  placeholder="Crop Name"
+  value={marketCrop}
+  onChange={(e) => setMarketCrop(e.target.value)}
+  style={inputStyle}
+/>
+
+<input
+  type="number"
+  placeholder="Price"
+  value={marketPrice}
+  onChange={(e) => setMarketPrice(e.target.value)}
+  style={inputStyle}
+/>
+
+<input
+  type="text"
+  placeholder="Image URL"
+  value={marketImage}
+  onChange={(e) => setMarketImage(e.target.value)}
+  style={inputStyle}
+/>
+
+<button
+  onClick={handleAddMarketPrice}
+  style={{
+    marginTop: "20px",
+    padding: "12px 25px",
+    background: "green",
+    color: "white",
+    border: "none",
+    borderRadius: "10px",
+    cursor: "pointer"
+  }}
+>
+  📈 Add Market Price
+</button>
 
       <table
         border="1"
@@ -426,6 +949,8 @@ if (isAdmin) {
     </div>
   );
 }
+
+
   // MAIN WEBSITE
   return (
     <div style={{ minHeight: "100vh", background: "#f4fff4", fontFamily: "Arial" }}>
@@ -438,10 +963,15 @@ if (isAdmin) {
       >
         <h1 style={{ fontSize: "32px", margin: 0 }}>🌿 AgroSage AI</h1>
         <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-          <button style={navBtn} onClick={() => setPage("home")}>Home</button>
-          <button style={navBtn} onClick={() => setPage("upload")}>Upload</button>
-          <button style={navBtn} onClick={() => setPage("fertilizers")}>Fertilizers</button>
-          <button style={navBtn} onClick={() => setPage("market")}>Market Price</button>
+          <button style={navBtn} onClick={() => setPage("home")}>
+  {language === "en" ? "Home" : "முகப்பு"}
+</button>
+          <button style={navBtn} onClick={() => setPage("upload")}>{language === "en" ? "Upload" : "பதிவேற்று"}</button>
+          <button style={navBtn} onClick={() => setPage("fertilizers")}>{language === "en" ? "Fertilizers" : "உரங்கள்"}</button>
+          <button style={navBtn} onClick={() => setPage("diseases")}>
+  {language === "en" ? "Diseases" : "நோய்கள்"}
+</button>
+          <button style={navBtn} onClick={() => setPage("market")}>{language === "en" ? "Market Price" : "சந்தை விலை"}</button>
           <button style={navBtn} onClick={() => setPage("croprec")}>
   Crop Recommendation
 </button>
@@ -449,15 +979,15 @@ if (isAdmin) {
   style={navBtn}
   onClick={() => setPage("weather")}
 >
-  Weather
+ {language === "en" ? "Weather" : "வானிலை"}
 </button>
           <button
   style={navBtn}
   onClick={() => setPage("schemes")}
 >
-  Schemes
+ {language === "en" ? "Schemes" : "திட்டங்கள்"}
 </button>
-          <button style={navBtn} onClick={() => setPage("profile")}>Profile</button>
+          <button style={navBtn} onClick={() => setPage("profile")}>{language === "en" ? "Profile" : "சுயவிவரம்"}</button>
           <button style={navBtn} onClick={() => setIsLoggedIn(false)}>Logout</button>
         </div>
       </div>
@@ -473,72 +1003,207 @@ if (isAdmin) {
             <img src={sliderImages[currentSlide]} alt="slider" style={{ width: "100%", height: "100%", objectFit: "cover", animation: "zoomBg 8s infinite alternate" }} />
 
             <div style={heroOverlay}>
-              <h1 style={heroTitle}>Smart Farming Future</h1>
-              <p style={heroText}>AI Crop Disease Detection & Fertilizer Guidance</p>
-              <button style={heroBtn} onClick={() => setPage("upload")}>Explore Now</button>
+              <h1 style={heroTitle}>
+  {language === "en"
+    ? "Smart Farming Future"
+    : "நவீன விவசாயத்தின் எதிர்காலம்"}
+</h1>
 
-              <div style={aiBox}>
-                <h2 style={{ margin: 0 }}>🤖 Ask AgroSage AI</h2>
-                <input type="text" placeholder="Ask farming questions..." value={question} onChange={(e) => setQuestion(e.target.value)} style={aiInput} />
-                <button style={{ ...heroBtn, marginTop: "15px" }} onClick={handleAskAI}>Ask AI</button>
-                {aiAnswer && <div style={aiAnswerBox}>{aiAnswer}</div>}
-              </div>
-            </div>
-          </div>
+<p style={heroText}>
+  {language === "en"
+    ? "AI Crop Disease Detection & Fertilizer Guidance"
+    : "AI மூலம் பயிர் நோய் கண்டறிதல் மற்றும் உர வழிகாட்டுதல்"}
+</p>
 
-          {/* DISEASES SECTION (20 ITEMS - ALTERNATING) */}
-          <div style={{ padding: "60px 40px", background: "white" }}>
-            <h1 style={{ ...pageTitle, marginBottom: "50px" }}>🦠 Common Crop Diseases</h1>
-            <div style={{ display: "flex", flexDirection: "column", gap: "50px", maxWidth: "1000px", margin: "0 auto" }}>
-              {diseaseData.map((item, index) => {
-                const isEven = index % 2 === 0;
-                return (
-                  <div key={index} style={{
-                    display: "flex", flexDirection: isEven ? "row" : "row-reverse", alignItems: "center", gap: "40px", 
-                    background: "#f9fff9", padding: "30px", borderRadius: "20px", boxShadow: "0 5px 15px rgba(0,0,0,0.05)"
-                  }}>
-                    <div style={{ flex: 1, textAlign: isEven ? "left" : "right" }}>
-                      <h2 style={{ color: "green", fontSize: "32px", marginBottom: "15px", marginTop: 0 }}>{index + 1}. {item.name}</h2>
-                      <h4 style={{ color: "#555", marginBottom: "15px" }}>🌾 Target Crop: {item.crop}</h4>
-                      <p style={{ fontSize: "18px", color: "#444", lineHeight: "1.6" }}>{item.definition}</p>
-                      <p style={{ fontSize: "16px", color: "#777", marginTop: "15px", fontWeight: "bold" }}>📍 {item.region}</p>
-                    </div>
-                    <div style={{ flex: "0 0 300px" }}>
-                      <img src={item.image} alt={item.name} style={{ width: "100%", height: "250px", objectFit: "cover", borderRadius: "15px", boxShadow: "0 10px 20px rgba(0,0,0,0.15)" }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+<button style={heroBtn} onClick={() => setPage("upload")}>
+  {language === "en"
+    ? "Explore Now"
+    : "இப்போது தொடங்கு"}
+</button>
+
+<h2 style={{ margin: 0 }}>
+  {language === "en"
+    ? "🤖 Ask AgroSage AI"
+    : "🤖 AgroSage AI-யிடம் கேளுங்கள்"}
+</h2>
+
+<input
+  type="text"
+  placeholder={
+    language === "en"
+      ? "Ask farming questions..."
+      : "விவசாய கேள்விகளை கேளுங்கள்..."
+  }
+  value={question}
+  onChange={(e) => setQuestion(e.target.value)}
+  style={aiInput}
+/>
+
+<button
+  style={{ ...heroBtn, marginTop: "15px" }}
+  onClick={handleAskAI}
+>
+  {language === "en"
+    ? "Ask AI"
+    : "AI-யிடம் கேள்"}
+</button>
+
+{aiAnswer && <div style={aiAnswerBox}>{aiAnswer}</div>}
+                      </div>
           </div>
         </div>
       )}
-
       {/* UPLOAD */}
       {page === "upload" && (
         <div style={{ padding: "50px", position: "relative", minHeight: "100vh", background: "linear-gradient(135deg,#d4fc79,#96e6a1,#38ef7d)" }}>
-          <h1 style={pageTitle}>🌾 Upload Crop Image</h1>
+       <h1 style={pageTitle}>
+  {language === "en"
+    ? "🌾 Upload Crop Image"
+    : "🌾 பயிர் படத்தை பதிவேற்று"}
+</h1>
           <div style={uploadPageBox}>
-            <h2 style={{ color: "green" }}>AI Crop Detection Upload</h2>
+            <h2 style={{ color: "green" }}>
+  {language === "en"
+    ? "AI Crop Detection Upload"
+    : "AI பயிர் நோய் கண்டறிதல்"}
+</h2>
             <input type="file" onChange={handleImageUpload} />
             {uploadedImage && <img src={uploadedImage} alt="upload" style={{ width: "350px", marginTop: "20px", borderRadius: "20px", border: "6px solid #38ef7d", boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }} />}
             <br />
             <button style={heroBtn} onClick={handlePredict}>
-  Predict Disease
+  {language === "en"
+    ? "Predict Disease"
+    : "நோயை கண்டறி"}
 </button>
-          {prediction && (
+  {prediction && (
+  <>
+    <div
+      style={{
+        marginTop: "20px",
+        background: "white",
+        padding: "20px",
+        borderRadius: "15px",
+        color: "black"
+      }}
+    >
+      <h2>
+  {language === "en" ? "Disease" : "நோய்"}:
+  {prediction.disease}
+</h2>
+
+<h3>
+  {language === "en"
+    ? "Confidence"
+    : "நம்பகத்தன்மை"}:
+  {prediction.confidence}%
+</h3>
+    </div>
+
+    {diseaseInfo[prediction.disease] && (
+      <div
+        style={{
+          marginTop: "20px",
+          background: "#e8f5e9",
+          padding: "20px",
+          borderRadius: "15px"
+        }}
+      >
+        <h3> {language === "en"
+    ? "🩺 Treatment Suggestions"
+    : "🩺 சிகிச்சை பரிந்துரைகள்"}</h3>
+
+        <ul>
+          {diseaseInfo[prediction.disease].prevention.map(
+  (item, i) => (
+    <li key={i}>
+      {language === "en"
+        ? item
+        : item === "Prune trees for airflow"
+        ? "காற்றோட்டத்திற்காக கிளைகளை வெட்டவும்"
+        : item === "Avoid overhead irrigation"
+        ? "மேலிருந்து நீர் பாய்ச்சுவதை தவிர்க்கவும்"
+        : item}
+    </li>
+  )
+)}
+      {language === "en"
+        ? item
+        : item === "Apply fungicides regularly"
+        ? "பூஞ்சைநாசினியை முறையாக தெளிக்கவும்"
+        : item === "Remove infected leaves"
+        ? "பாதிக்கப்பட்ட இலைகளை அகற்றவும்"
+        : item}
+  )
+)}
+        </ul>
+
+        <h3>  {language === "en"
+    ? "🛡️ Prevention Tips"
+    : "🛡️ தடுப்பு வழிமுறைகள்"}</h3>
+
+        <ul>
+          {diseaseInfo[prediction.disease].prevention.map(
+            (item, i) => (
+              <li key={i}>{item}</li>
+            )
+          )}
+        </ul>
+<h3>
+{language === "en"
+ ? "🔴 Severity"
+ : "🔴 தீவிரம்"}: {language === "en"
+  ? diseaseInfo[prediction.disease].severity
+  : diseaseInfo[prediction.disease].severity === "High"
+    ? "அதிகம்"
+    : diseaseInfo[prediction.disease].severity === "Medium"
+    ? "நடுத்தரம்"
+    : "குறைவு"}
+</h3>
+
+<h3>
+   {language === "en"
+ ? "📉 Yield Loss"
+ : "📉 விளைச்சல் இழப்பு"}: {diseaseInfo[prediction.disease].yieldLoss}
+</h3>
+</div>
+)}
+
+{!diseaseInfo[prediction.disease] && (
   <div
     style={{
       marginTop: "20px",
-      background: "white",
+      background: "#fff3cd",
       padding: "20px",
       borderRadius: "15px",
       color: "black"
     }}
   >
-    <h2>Disease: {prediction.disease}</h2>
-    <h3>Confidence: {prediction.confidence}%</h3>
+    <h3>ℹ️ Disease Advisory</h3>
+    <p>
+      Treatment information for this disease will be updated soon.
+      Please consult a local agricultural expert for detailed guidance.
+    </p>
   </div>
+)}
+<button
+  style={{
+    marginTop: "20px",
+    background: "#1976d2",
+    color: "white",
+    border: "none",
+    padding: "12px 25px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontSize: "16px",
+    fontWeight: "bold"
+  }}
+  onClick={downloadReport}
+>
+  {language === "en"
+ ? "📄 Download Report"
+ : "📄 அறிக்கையை பதிவிறக்கு"}
+</button>
+</>
 )}
           </div>
         </div>
@@ -570,16 +1235,46 @@ if (isAdmin) {
         </div>
       )}
 
+{page === "diseases" && (
+  <div style={{ padding: "40px" }}>
+    <h1 style={pageTitle}>🌾 Disease Library</h1>
+
+    <div style={gridStyle}>
+      {diseases.map((disease) => (
+        <div key={disease.id} style={card}>
+          <img
+            src={disease.image}
+            alt={disease.name}
+            style={cardImage}
+          />
+
+          <h2 style={cardTitle}>
+            {disease.name}
+          </h2>
+
+          <div style={{ padding: "15px" }}>
+            <p><b>Crop:</b> {disease.crop}</p>
+            <p><b>Definition:</b> {disease.definition}</p>
+            <p><b>Treatment:</b> {disease.treatment}</p>
+            <p><b>Prevention:</b> {disease.prevention}</p>
+            <p><b>Severity:</b> {disease.severity}</p>
+            <p><b>Yield Loss:</b> {disease.yield_loss}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
       {/* MARKET API WITH GRAPH */}
       {page === "market" && (
         <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={pageTitle}>📈 Live Market Prices API</h1>
+          <h1 style={pageTitle}>📈  Market Prices </h1>
           {isLoadingPrices ? (
-            <div style={{ textAlign: "center", fontSize: "24px", color: "green", padding: "50px" }}>⏳ Fetching real-time market data...</div>
+            <div style={{ textAlign: "center", fontSize: "24px", color: "green", padding: "50px" }}>⏳ Loading market data...</div>
           ) : (
             <>
               <div style={{ background: "white", padding: "40px", borderRadius: "20px", marginBottom: "50px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}>
-                <h2 style={{ color: "green", marginBottom: "30px", textAlign: "center" }}>📊 Live Price Trends (₹ / Quintal)</h2>
+                <h2 style={{ color: "green", marginBottom: "30px", textAlign: "center" }}>📊 Price Trends (₹ / Quintal)</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                   {marketPrices.map((item, index) => {
                     const barWidth = `${(item.price / 3000) * 100}%`;
@@ -763,7 +1458,7 @@ if (isAdmin) {
 
             <div style={card}>
   <img
-    src="https://pmkisan.gov.in/images/pmkisanlogo.png"
+    src="/schemes/pm kisan.png"
     alt="PM Kisan"
     style={{
       width: "100%",
@@ -799,7 +1494,7 @@ if (isAdmin) {
 </div>
 <div style={card}>
   <img
-    src="https://pmsuryaghar.gov.in/assets/images/logo.png"
+    src="/schemes/PM Surya Ghar.webp"
     alt="PM Surya Ghar"
     style={{
       width: "100%",
@@ -836,7 +1531,7 @@ if (isAdmin) {
 
             <div style={card}>
   <img
-    src="https://pmfby.gov.in/images/logo.png"
+    src="/schemes/Crop Insurance.png"
     alt="Crop Insurance"
     style={{
       width: "100%",
@@ -873,7 +1568,7 @@ if (isAdmin) {
 
             <div style={card}>
   <img
-    src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png"
+    src="/schemes/Kisan Credit Card.jpg"
     alt="Kisan Credit Card"
     style={{
       width: "100%",

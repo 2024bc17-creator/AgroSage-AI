@@ -73,7 +73,7 @@ export default function App() {
 
   useEffect(() => {
   axios
-    .get("http://16.16.75.9:5000/diseases")
+    .get("http://13.53.137.40:5000/diseases")
     .then((response) => {
       setDiseases(response.data);
     })
@@ -89,7 +89,7 @@ useEffect(() => {
     setIsLoadingPrices(true);
 
     axios
-      .get("http://16.16.75.9:5000/market-prices")
+      .get("http://13.53.137.40:5000/market-prices")
       .then((response) => {
         setMarketPrices(response.data);
         setIsLoadingPrices(false);
@@ -104,7 +104,7 @@ useEffect(() => {
     useEffect(() => {
   if (isAdmin) {
     axios
-      .get("http://16.16.75.9:5000/admin/users")
+      .get("http://13.53.137.40:5000/admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -431,10 +431,11 @@ const diseaseInfo = {
   }
   const formData = new FormData();
   formData.append("file", selectedFile);
+  formData.append("email", email);
 
   try {
   const response = await axios.post(
-       "http://16.16.75.9:5000/predict",
+       "http://13.53.137.40:5000/predict",
       formData
     );
 
@@ -447,7 +448,7 @@ const diseaseInfo = {
   const handleAddDisease = async () => {
   try {
     await axios.post(
-      "http://16.16.75.9:5000/add-disease",
+      "http://13.53.137.40:5000/add-disease",
       {
         name: diseaseName,
         crop: cropName,
@@ -486,7 +487,7 @@ const diseaseInfo = {
 
   try {
     const response = await axios.post(
-      "http://16.16.75.9:5000/login",
+      "http://13.53.137.40:5000/login",
       {
         email,
         password
@@ -506,7 +507,7 @@ const diseaseInfo = {
     const handleAdminLogin = async () => {
   try {
     const response = await axios.post(
-      "http://16.16.75.9:5000/admin/login",
+      "http://13.53.137.40:5000/admin/login",
       {
         username: email,
         password: password
@@ -526,7 +527,7 @@ const diseaseInfo = {
   const handleAddMarketPrice = async () => {
   try {
     await axios.post(
-      "http://16.16.75.9:5000/add-market-price",
+      "http://13.53.137.40:5000/add-market-price",
       {
         crop: marketCrop,
         price: marketPrice,
@@ -560,7 +561,7 @@ const diseaseInfo = {
      const getCropRecommendation = async () => {
   try {
     const response = await axios.post(
-      "http://16.16.75.9:5000/crop-recommend",
+      "http://13.53.137.40:5000/crop-recommend",
       {
         N: Number(N),
         P: Number(P),
@@ -591,7 +592,7 @@ const diseaseInfo = {
 
   try {
     const response = await axios.post(
-     "http://16.16.75.9:5000/signup",
+     "http://13.53.137.40:5000/signup",
       {
         name,
         email,
@@ -1126,16 +1127,7 @@ if (isAdmin) {
     </li>
   )
 )}
-      {language === "en"
-        ? item
-        : item === "Apply fungicides regularly"
-        ? "பூஞ்சைநாசினியை முறையாக தெளிக்கவும்"
-        : item === "Remove infected leaves"
-        ? "பாதிக்கப்பட்ட இலைகளை அகற்றவும்"
-        : item}
-  )
-)}
-        </ul>
+</ul>
 
         <h3>  {language === "en"
     ? "🛡️ Prevention Tips"
@@ -1212,7 +1204,11 @@ if (isAdmin) {
       {/* FERTILIZERS (20 ITEMS - ALTERNATING) */}
       {page === "fertilizers" && (
         <div style={{ padding: "60px 40px" }}>
-          <h1 style={pageTitle}>🌱 Fertilizers Guide</h1>
+         <h1 style={pageTitle}>
+  {language === "en"
+    ? "🌱 Fertilizers Guide"
+    : "🌱 உர வழிகாட்டி"}
+</h1>
           <div style={{ display: "flex", flexDirection: "column", gap: "50px", maxWidth: "1000px", margin: "0 auto" }}>
             {fertilizerData.map((item, index) => {
               const isEven = index % 2 === 0;
@@ -1237,7 +1233,11 @@ if (isAdmin) {
 
 {page === "diseases" && (
   <div style={{ padding: "40px" }}>
-    <h1 style={pageTitle}>🌾 Disease Library</h1>
+    <h1 style={pageTitle}>
+  {language === "en"
+    ? "🌾 Disease Library"
+    : "🌾 நோய் நூலகம்"}
+</h1>
 
     <div style={gridStyle}>
       {diseases.map((disease) => (
@@ -1253,12 +1253,36 @@ if (isAdmin) {
           </h2>
 
           <div style={{ padding: "15px" }}>
-            <p><b>Crop:</b> {disease.crop}</p>
-            <p><b>Definition:</b> {disease.definition}</p>
-            <p><b>Treatment:</b> {disease.treatment}</p>
-            <p><b>Prevention:</b> {disease.prevention}</p>
-            <p><b>Severity:</b> {disease.severity}</p>
-            <p><b>Yield Loss:</b> {disease.yield_loss}</p>
+            <p><b>
+  {language === "en"
+    ? "Crop:"
+    : "பயிர்:"}
+</b>{disease.crop}</p>
+            <p><b>
+  {language === "en"
+    ? "Definition:"
+    : "விளக்கம்:"}
+</b> {disease.definition}</p>
+            <p><b>
+  {language === "en"
+    ? "Treatment:"
+    : "சிகிச்சை:"}
+</b> {disease.treatment}</p>
+            <p><b>
+  {language === "en"
+    ? "Prevention:"
+    : "தடுப்பு:"}
+</b> {disease.prevention}</p>
+            <p><b>
+  {language === "en"
+    ? "Severity:"
+    : "தீவிரம்:"}
+</b> {disease.severity}</p>
+            <p><b>
+  {language === "en"
+    ? "Yield Loss:"
+    : "விளைச்சல் இழப்பு:"}
+</b> {disease.yield_loss}</p>
           </div>
         </div>
       ))}

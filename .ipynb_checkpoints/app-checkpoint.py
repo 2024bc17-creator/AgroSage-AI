@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 from flask import Flask, request, jsonify
+from datetime import datetime, timedelta
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from PIL import Image
@@ -43,7 +44,8 @@ def predict():
         return jsonify({"error": "No file uploaded"})
 
     file = request.files["file"]
-
+    email = request.form["email"]
+    
     from PIL import Image
     img = Image.open(file.stream).convert("RGB")
     img = img.resize((224, 224))
@@ -56,6 +58,93 @@ def predict():
 
     predicted_class = class_names[np.argmax(prediction)]
     confidence = float(np.max(prediction) * 100)
+        
+    cursor.execute(
+        "SELECT phone FROM users WHERE email=%s",
+        (email,)
+    )
+
+    user = cursor.fetchone()
+
+    print(user)
+    phone = user[0]
+    first_time = datetime.now()
+    second_time = first_time + timedelta(minutes=10)
+    third_time = first_time + timedelta(minutes=20)
+    fourth_time = first_time + timedelta(minutes=30)
+    fith_time = first_time + timedelta(minutes=40)
+    cursor.execute(
+        """
+        INSERT INTO notifications
+        (user_email, phone, disease, message, send_time)
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+        (
+    email,
+    phone,
+    predicted_class,
+    "Disease detected successfully.",
+    first_time
+      )
+    )
+    cursor.execute(
+    """
+    INSERT INTO notifications
+    (user_email, phone, disease, message, send_time)
+    VALUES (%s, %s, %s, %s, %s)
+    """,
+    (
+        email,
+        phone,
+        predicted_class,
+        "Reminder: Please start the treatment for your crop.",
+        second_time
+    )
+)
+    cursor.execute(
+    """
+    INSERT INTO notifications
+    (user_email, phone, disease, message, send_time)
+    VALUES (%s, %s, %s, %s, %s)
+    """,
+    (
+        email,
+        phone,
+        predicted_class,
+        "Reminder: Check your crop condition.",
+        third_time
+    )
+)
+    cursor.execute(
+    """
+    INSERT INTO notifications
+    (user_email, phone, disease, message, send_time)
+    VALUES (%s, %s, %s, %s, %s)
+    """,
+    (
+        email,
+        phone,
+        predicted_class,
+        "Reminder: Apply the recommended fertilizer if needed.",
+        fourth_time
+    )
+)
+    cursor.execute(
+    """
+    INSERT INTO notifications
+    (user_email, phone, disease, message, send_time)
+    VALUES (%s, %s, %s, %s, %s)
+    """,
+    (
+        email,
+        phone,
+        predicted_class,
+        "Final reminder: Continue monitoring your crop and follow the treatment advice.",
+        fith_time
+    )
+)
+
+    db.commit()
 
     return jsonify({
         "disease": predicted_class,
@@ -73,6 +162,18 @@ def signup():
     address = data["address"]
     crop_type = data["cropType"]
     password = data["password"]
+
+    cursor.execute(
+        "SELECT * FROM users WHERE email=%s",
+        (email,)
+    )
+
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        return jsonify({
+            "message": "Email already exists"
+        }), 400
 
     sql = """
     INSERT INTO users
@@ -94,7 +195,7 @@ def signup():
 
     return jsonify({
         "message": "User Registered Successfully"
-})
+    })
 
 
 @app.route("/login", methods=["POST"])
@@ -284,6 +385,30 @@ def market_prices():
         })
 
     return jsonify(prices)
+
+@app.route("/add-market-price", methods=["POST"])
+def add_market_price():
+
+    data = request.json
+
+    sql = """
+    INSERT INTO market_prices
+    (crop, price, image)
+    VALUES (%s,%s,%s)
+    """
+
+    values = (
+        data["crop"],
+        data["price"],
+        data["image"]
+    )
+
+    cursor.execute(sql, values)
+    db.commit()
+
+    return jsonify({
+        "message": "Market Price Added Successfully"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

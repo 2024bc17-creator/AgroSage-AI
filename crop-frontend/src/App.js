@@ -621,7 +621,7 @@ const diseaseInfo = {
 
     alert(response.data.message);
 
-    setIsAccountCreated(true);
+   
     setIsLogin(true);
 
   } catch (error) {

@@ -26,3 +26,19 @@ src/PlantDoc-Dataset-master.zip
 src/PlantDoc-Dataset-master.zip
 src/PlantDoc-Dataset-master.zip
 .env
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Datasets
+*.zip
+*.csv
+
+# Jupyter notebooks (optional)
+*.ipynb

@@ -73,7 +73,7 @@ export default function App() {
 
   useEffect(() => {
   axios
-    .get("http://13.49.175.235:5000/diseases")
+    .get("http://16.171.45.14:5000/diseases")
     .then((response) => {
       setDiseases(response.data);
     })
@@ -89,7 +89,7 @@ useEffect(() => {
     setIsLoadingPrices(true);
 
     axios
-      .get("http://13.49.175.235:5000/market-prices")
+      .get("http://16.171.45.14:5000/market-prices")
       .then((response) => {
         setMarketPrices(response.data);
         setIsLoadingPrices(false);
@@ -104,7 +104,7 @@ useEffect(() => {
     useEffect(() => {
   if (isAdmin) {
     axios
-      .get("http://13.49.175.235:5000/admin/users")
+      .get("http://16.171.45.14:5000/admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -125,7 +125,7 @@ useEffect(() => {
   try {
 
     const response = await axios.post(
-      "http://13.49.175.235:5000/ask-ai",
+      "http://16.171.45.14:5000/ask-ai",
       {
         question: question
       }
@@ -451,7 +451,7 @@ const diseaseInfo = {
 
   try {
   const response = await axios.post(
-       "http://13.49.175.235:5000/predict",
+       "http://16.171.45.14:5000/predict",
       formData
     );
 
@@ -464,7 +464,7 @@ const diseaseInfo = {
   const handleAddDisease = async () => {
   try {
     await axios.post(
-      "http://13.49.175.235:5000/add-disease",
+      "http://16.171.45.14:5000/add-disease",
       {
         name: diseaseName,
         crop: cropName,
@@ -503,7 +503,7 @@ const diseaseInfo = {
 
   try {
     const response = await axios.post(
-      "http://13.49.175.235:5000/login",
+      "http://16.171.45.14:5000/login",
       {
         email,
         password
@@ -523,7 +523,7 @@ const diseaseInfo = {
     const handleAdminLogin = async () => {
   try {
     const response = await axios.post(
-      "http://13.49.175.235:5000/admin/login",
+      "http://16.171.45.14:5000/admin/login",
       {
         username: email,
         password: password
@@ -543,7 +543,7 @@ const diseaseInfo = {
   const handleAddMarketPrice = async () => {
   try {
     await axios.post(
-      "http://13.49.175.235:5000/add-market-price",
+      "http://16.171.45.14:5000/add-market-price",
       {
         crop: marketCrop,
         price: marketPrice,
@@ -577,7 +577,7 @@ const diseaseInfo = {
      const getCropRecommendation = async () => {
   try {
     const response = await axios.post(
-      "http://13.49.175.235:5000/crop-recommend",
+      "http://16.171.45.14:5000/crop-recommend",
       {
         N: Number(N),
         P: Number(P),
@@ -608,7 +608,7 @@ const diseaseInfo = {
 
   try {
     const response = await axios.post(
-     "http://13.49.175.235:5000/signup",
+     "http://16.171.45.14:5000/signup",
       {
         name,
         email,

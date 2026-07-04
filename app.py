@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 from tensorflow.keras.models import load_model
@@ -9,11 +8,13 @@ from PIL import Image
 import numpy as np
 import mysql.connector
 from flask_cors import CORS
+from google import genai
+import os
 import json
 import joblib
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 db = mysql.connector.connect(
@@ -150,7 +151,29 @@ def predict():
         "disease": predicted_class,
         "confidence": round(confidence, 2)
     })
+@app.route("/ask-ai", methods=["POST"])
+@app.route("/ask-ai", methods=["POST"])
+def ask_ai():
 
+    data = request.json
+    question = data["question"]
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=question
+        )
+
+        return jsonify({
+            "answer": response.text
+        })
+
+    except Exception as e:
+        print("Gemini Error:", e)
+
+        return jsonify({
+            "answer": str(e)
+        }), 500
 @app.route("/signup", methods=["POST"])
 def signup():
 
@@ -272,23 +295,6 @@ def admin_login():
             "message": "Invalid Admin Credentials"
         }), 401
        
-        
-@app.route("/ask-ai", methods=["POST"])
-def ask_ai():
-
-
-    data = request.json
-    question = data["question"]
-
-    model_ai = genai.GenerativeModel("gemini-2.5-flash")
-
-    response = model_ai.generate_content(
-        f"You are an agriculture expert. Answer this farming question clearly: {question}"
-    )
-
-    return jsonify({
-        "answer": response.text
-    })
 @app.route("/crop-recommend", methods=["POST"])
 def crop_recommend():
 

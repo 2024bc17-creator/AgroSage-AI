@@ -143,108 +143,7 @@ useEffect(() => {
 
 };
 
-  // 20 DISEASE DATA ENTRIES
-  const diseaseData = [
-    { name: "Rice Blast", crop: "Rice", image: "/Diseases/Rice-Blast.png", definition: "A highly destructive fungal disease causing lesions on leaves and stems.", region: "Humid and wet regions", treatment: [
-    "Apply Tricyclazole fungicide",
-    "Avoid excess nitrogen fertilizer",
-    "Improve field drainage"
-  ]},
-    { name: "Leaf Spot", crop: "Rice / Wheat", image: "/Diseases/leaf-spot.jpg", definition: "Causes brown or black spots on leaves, stunting plant growth and yield.", region: "Global, common in damp conditions", treatment: [
-    "Remove infected plants",
-    "Use disease-resistant varieties",
-    "Improve soil drainage"
-  ] },
-    { name: "Tomato Wilt", crop: "Tomato", image: "/Diseases/Tomato-Wilt.jpg", definition: "Soil-borne pathogens block water vessels, causing sudden drying of the plant.", region: "Warm, tropical climates", treatment: [
-    "Remove infected ears",
-    "Rotate crops",
-    "Use certified seeds"
-  ] },
-    { name: "Corn Smut", crop: "Corn", image: "/Diseases/Corn-Smut.jpg", definition: "Fungal disease creating large, grayish galls on the ears of the corn.", region: "Dry, hot agricultural zones", treatment: [
-    "Remove infected ears",
-    "Rotate crops",
-    "Use certified seeds"
-  ] },
-    { name: "Wheat Rust", crop: "Wheat", image: "/Diseases/Wheat-Rust.jpg", definition: "Appears as rust-colored powdery pustules on the stems and leaves.", region: "Temperate farming belts",  treatment: [
-    "Apply fungicides early",
-    "Plant resistant varieties",
-    "Remove infected plant debris"
-  ] },
-    { name: "Powdery Mildew", crop: "Grapes / Apples", image: "/Diseases/Powdery-Mildew.jpg", definition: "Forms a white powdery fungal growth on the surface of leaves.", region: "High humidity areas", treatment: [
-    "Apply sulfur fungicide",
-    "Improve air circulation",
-    "Avoid overhead watering"
-  ] },
-    { name: "Downy Mildew", crop: "Cucumbers", image: "/Diseases/downy-mildew.webp", definition: "Creates yellow angular spots on upper leaves and gray fuzz underneath.", region: "Cool, moist environments", treatment: [
-    "Use copper fungicide",
-    "Remove infected leaves",
-    "Improve drainage"] },
-    { name: "Early Blight", crop: "Potato / Tomato", image: "/Diseases/Early-Blight.jpg", definition: "Causes dark, concentric rings on older foliage, reducing crop lifespan.", region: "Sub-tropical regions", treatment: [
-    "Apply fungicides",
-    "Rotate crops",
-    "Remove infected leaves"
-  ] },
-    { name: "Late Blight", crop: "Potato", image: "/Diseases/Late-Blight.jpg", definition: "Notorious for the Irish Potato Famine, rots foliage and tubers rapidly.", region: "Cool, wet areas", treatment: [
-    "Destroy infected plants",
-    "Apply protective fungicides",
-    "Avoid excess moisture"
-  ] },
-    { name: "Citrus Canker", crop: "Citrus Fruits", image: "/Diseases/Citrus-Canker.jpg", definition: "Bacterial disease causing raised, corky lesions on fruit and leaves.", region: "Tropical and subtropical zones", treatment: [
-    "Prune infected branches",
-    "Apply copper sprays",
-    "Use disease-free seedlings"
-  ] },
-    { name: "Apple Scab", crop: "Apple", image: "/Diseases/Apple-Scab.jpg", definition: "Fungal disease leaving dark, scabby lesions on the fruit surface.", region: "Regions with rainy springs", treatment: [
-    "Apply fungicides",
-    "Remove fallen leaves",
-    "Plant resistant varieties"
-  ] },
-    { name: "Root Rot", crop: "Various", image: "/Diseases/Root-Rot.jpg", definition: "Caused by poor drainage, attacking the root system and killing the plant.", region: "Waterlogged soils globally",  treatment: [
-    "Improve soil drainage",
-    "Avoid overwatering",
-    "Remove affected plants"
-  ] },
-    { name: "Anthracnose", crop: "Beans / Mango", image: "/Diseases/Anthracnose.jpg", definition: "Creates dark, sunken lesions on stems, leaves, and fruits.", region: "Warm and humid climates", treatment: [
-    "Apply fungicides",
-    "Prune infected parts",
-    "Maintain field sanitation"
-  ] },
-    { name: "Black Stem Rust", crop: "Wheat", image: "/Diseases/Black-Stem.jpg", definition: "A severe rust disease causing massive crop lodging and yield loss.", region: "Global wheat-growing areas", treatment: [
-    "Grow resistant varieties",
-    "Apply fungicides",
-    "Remove alternate hosts"
-  ] },
-    { name: "Fusarium Wilt", crop: "Banana / Tomato", image: "/Diseases/fusarium-wilt.webp", definition: "A fungus entering through roots, turning leaves yellow and wilting them.", region: "Tropical soils",  treatment: [
-    "Use resistant varieties",
-    "Rotate crops",
-    "Improve soil health"
-  ] },
-    { name: "Bacterial Blight", crop: "Cotton / Rice", image: "/Diseases/Bacterial-Blight.jpg", definition: "Water-soaked streaks appear on leaves, eventually killing the foliage.", region: "Monsoon regions",  treatment: [
-    "Use certified seeds",
-    "Avoid field overcrowding",
-    "Apply recommended bactericides"
-  ] },
-    { name: "Fire Blight", crop: "Pear / Apple", image: "/Diseases/Fire-Blight.jpg", definition: "Bacterial infection making branches look blackened and scorched by fire.", region: "Temperate orchards",  treatment: [
-    "Prune infected branches",
-    "Disinfect tools",
-    "Apply copper sprays"
-  ] },
-    { name: "Mosaic Virus", crop: "Tobacco / Tomato", image: "/Diseases/Mosaic-Virus.jpg", definition: "Causes a mottled, mosaic-like pattern on leaves, stunting growth.", region: "Widespread, spread by aphids",  treatment: [
-    "Remove infected plants",
-    "Control aphids",
-    "Use virus-free seeds"
-  ] },
-    { name: "Clubroot", crop: "Cabbage", image: "/Diseases/Clubroot.jpg", definition: "Causes roots to swell and distort, preventing nutrient absorption.", region: "Acidic soil regions", treatment: [
-    "Increase soil pH with lime",
-    "Improve drainage",
-    "Rotate crops"
-  ] },
-    { name: "Soybean Rust", crop: "Soybean", image: "/Diseases/Soybean-Rust.jpg", definition: "Aggressive fungal disease causing rapid defoliation of soybean plants.", region: "South America and Southern US",  treatment: [
-    "Apply fungicides",
-    "Monitor fields regularly",
-    "Use resistant varieties"
-  ] }
-  ];
+  
 
 const diseaseInfo = {
   "Rice Blast": {
@@ -1694,6 +1593,5 @@ const farmerRight = { position: "absolute", right: "50px", bottom: "50px", fontS
 const leaf1 = { position: "absolute", top: "80px", left: "40px", fontSize: "45px", animation: "floatLeaf 4s infinite ease-in-out", zIndex: 5 };
 const leaf2 = { position: "absolute", top: "200px", right: "60px", fontSize: "55px", animation: "floatLeaf 5s infinite ease-in-out", zIndex: 5 };
 const leaf3 = { position: "absolute", bottom: "100px", left: "200px", fontSize: "50px", animation: "floatLeaf 6s infinite ease-in-out", zIndex: 5 };
-const aiBox = { marginTop: "40px", background: "rgba(255,255,255,0.2)", padding: "30px", borderRadius: "25px", backdropFilter: "blur(10px)", width: "500px", border: "1px solid rgba(255,255,255,0.3)" };
 const aiInput = { width: "100%", padding: "15px", borderRadius: "15px", border: "none", marginTop: "20px", fontSize: "16px", boxSizing: "border-box" };
 const aiAnswerBox = { marginTop: "20px", background: "white", color: "green", padding: "20px", borderRadius: "15px", fontWeight: "bold" };

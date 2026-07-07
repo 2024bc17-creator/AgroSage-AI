@@ -415,6 +415,47 @@ def add_market_price():
     return jsonify({
         "message": "Market Price Added Successfully"
     })
+@app.route("/add-fertilizer", methods=["POST"])
+def add_fertilizer():
+
+    data = request.json
+
+    cursor.execute("""
+        INSERT INTO fertilizers
+        (
+            name,
+            name_tamil,
+            description,
+            description_tamil,
+            crop,
+            crop_tamil,
+            usage_info,
+            usage_info_tamil,
+            precautions,
+            precautions_tamil,
+            image
+        )
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """,
+    (
+        data["name"],
+        data["name_tamil"],
+        data["description"],
+        data["description_tamil"],
+        data["crop"],
+        data["crop_tamil"],
+        data["usage_info"],
+        data["usage_info_tamil"],
+        data["precautions"],
+        data["precautions_tamil"],
+        data["image"]
+    ))
+
+    db.commit()
+
+    return jsonify({
+        "message": "Fertilizer Added Successfully"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

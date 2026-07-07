@@ -20,6 +20,17 @@ export default function App() {
   const [marketCrop, setMarketCrop] = useState("");
   const [marketPrice, setMarketPrice] = useState("");
   const [marketImage, setMarketImage] = useState("");
+  const [fertilizerName, setFertilizerName] = useState("");
+  const [fertilizerNameTamil, setFertilizerNameTamil] = useState("");
+  const [fertilizerDescription, setFertilizerDescription] = useState("");
+  const [fertilizerDescriptionTamil, setFertilizerDescriptionTamil] = useState("");
+  const [fertilizerCrop, setFertilizerCrop] = useState("");
+  const [fertilizerCropTamil, setFertilizerCropTamil] = useState("");
+  const [fertilizerUsage, setFertilizerUsage] = useState("");
+  const [fertilizerUsageTamil, setFertilizerUsageTamil] = useState("");
+  const [fertilizerPrecautions, setFertilizerPrecautions] = useState("");
+  const [fertilizerPrecautionsTamil, setFertilizerPrecautionsTamil] = useState("");
+  const [fertilizerImage, setFertilizerImage] = useState("");
 
   // APP
   const [page, setPage] = useState("home");
@@ -73,7 +84,7 @@ export default function App() {
 
   useEffect(() => {
   axios
-    .get("http://16.171.45.14:5000/diseases")
+    .get("http://13.51.62.113:5000/diseases")
     .then((response) => {
       setDiseases(response.data);
     })
@@ -89,7 +100,7 @@ useEffect(() => {
     setIsLoadingPrices(true);
 
     axios
-      .get("http://16.171.45.14:5000/market-prices")
+      .get("http://13.51.62.113:5000/market-prices")
       .then((response) => {
         setMarketPrices(response.data);
         setIsLoadingPrices(false);
@@ -104,7 +115,7 @@ useEffect(() => {
     useEffect(() => {
   if (isAdmin) {
     axios
-      .get("http://16.171.45.14:5000/admin/users")
+      .get("http://13.51.62.113:5000/admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -125,7 +136,7 @@ useEffect(() => {
   try {
 
     const response = await axios.post(
-      "http://16.171.45.14:5000/ask-ai",
+      "http://13.51.62.113:5000/ask-ai",
       {
         question: question
       }
@@ -350,7 +361,7 @@ const diseaseInfo = {
 
   try {
   const response = await axios.post(
-       "http://16.171.45.14:5000/predict",
+       "http://13.51.62.113:5000/predict",
       formData
     );
 
@@ -363,7 +374,7 @@ const diseaseInfo = {
   const handleAddDisease = async () => {
   try {
     await axios.post(
-      "http://16.171.45.14:5000/add-disease",
+      "http://13.51.62.113:5000/add-disease",
       {
         name: diseaseName,
         crop: cropName,
@@ -402,7 +413,7 @@ const diseaseInfo = {
 
   try {
     const response = await axios.post(
-      "http://16.171.45.14:5000/login",
+      "http://13.51.62.113:5000/login",
       {
         email,
         password
@@ -422,7 +433,7 @@ const diseaseInfo = {
     const handleAdminLogin = async () => {
   try {
     const response = await axios.post(
-      "http://16.171.45.14:5000/admin/login",
+      "http://13.51.62.113:5000/admin/login",
       {
         username: email,
         password: password
@@ -442,7 +453,7 @@ const diseaseInfo = {
   const handleAddMarketPrice = async () => {
   try {
     await axios.post(
-      "http://16.171.45.14:5000/add-market-price",
+      "http://13.51.62.113:5000/add-market-price",
       {
         crop: marketCrop,
         price: marketPrice,
@@ -461,7 +472,51 @@ const diseaseInfo = {
     alert("Error adding market price");
   }
 };
-  
+
+  const handleAddFertilizer = async () => {
+
+  try {
+
+    await axios.post(
+      "http://13.51.62.113:5000/add-fertilizer",
+      {
+        name: fertilizerName,
+        name_tamil: fertilizerNameTamil,
+        description: fertilizerDescription,
+        description_tamil: fertilizerDescriptionTamil,
+        crop: fertilizerCrop,
+        crop_tamil: fertilizerCropTamil,
+        usage_info: fertilizerUsage,
+        usage_info_tamil: fertilizerUsageTamil,
+        precautions: fertilizerPrecautions,
+        precautions_tamil: fertilizerPrecautionsTamil,
+        image: fertilizerImage
+      }
+    );
+
+    alert("✅ Fertilizer Added Successfully");
+
+    setFertilizerName("");
+    setFertilizerNameTamil("");
+    setFertilizerDescription("");
+    setFertilizerDescriptionTamil("");
+    setFertilizerCrop("");
+    setFertilizerCropTamil("");
+    setFertilizerUsage("");
+    setFertilizerUsageTamil("");
+    setFertilizerPrecautions("");
+    setFertilizerPrecautionsTamil("");
+    setFertilizerImage("");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Unable to Add Fertilizer");
+
+  }
+
+};
   const getWeather = async () => {
   try {
    const response = await axios.get(
@@ -476,7 +531,7 @@ const diseaseInfo = {
      const getCropRecommendation = async () => {
   try {
     const response = await axios.post(
-      "http://16.171.45.14:5000/crop-recommend",
+      "http://13.51.62.113:5000/crop-recommend",
       {
         N: Number(N),
         P: Number(P),
@@ -507,7 +562,7 @@ const diseaseInfo = {
 
   try {
     const response = await axios.post(
-     "http://16.171.45.14:5000/signup",
+     "http://13.51.62.113:5000/signup",
       {
         name,
         email,
